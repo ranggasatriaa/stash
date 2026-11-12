@@ -1,0 +1,14 @@
+# Development override: exposes PostgreSQL/Redis on localhost only so the
+# app can run on the host (php + node) against containerized services.
+#   docker compose -f compose.yaml -f compose.dev.yaml up -d postgres redis
+services:
+    postgres:
+        ports:
+            - '127.0.0.1:5432:5432'
+    redis:
+        ports:
+            - '127.0.0.1:6379:6379'
+    app:
+        environment:
+            APP_ENV: local
+            APP_DEBUG: 'true'

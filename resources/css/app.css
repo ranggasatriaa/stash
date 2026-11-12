@@ -1,0 +1,105 @@
+/* Layer order: the Stash master CSS sits below Tailwind utilities so
+   utility classes can always refine a component. */
+@layer theme, base, st-base, components, st-components, utilities;
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/nunito-sans/index.css';
+@import './stash.css';
+
+@source '../views';
+
+@theme {
+    --font-sans:
+        'Nunito Sans Variable', 'Nunito Sans', ui-sans-serif, system-ui,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    /* Stash palette as Tailwind colours (bg-ink, text-orange-text, ...) */
+    --color-ivory: #fff8ef;
+    --color-ink: #191a1d;
+    --color-orange: #ff7417;
+    --color-orange-text: #c2410c;
+    --color-yellow: #ffd83d;
+    --color-yellow-soft: #fff4c2;
+    --color-muted-text: #62656d;
+    --color-line-soft: #e8e1d5;
+
+    /* shadcn/ui tokens mapped onto the Stash palette */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    --background: var(--st-ivory);
+    --foreground: var(--st-ink);
+    --card: var(--st-white);
+    --card-foreground: var(--st-ink);
+    --popover: var(--st-white);
+    --popover-foreground: var(--st-ink);
+    --primary: var(--st-orange);
+    --primary-foreground: var(--st-ink);
+    --secondary: var(--st-white);
+    --secondary-foreground: var(--st-ink);
+    --muted: #f3ede3;
+    --muted-foreground: var(--st-muted);
+    --accent: var(--st-yellow);
+    --accent-foreground: var(--st-ink);
+    --destructive: var(--st-danger);
+    --destructive-foreground: var(--st-danger);
+    --border: var(--st-ink);
+    --input: var(--st-ink);
+    --ring: var(--st-focus);
+    --radius: 12px;
+    --sidebar: var(--st-ink);
+    --sidebar-foreground: var(--st-white);
+    --sidebar-primary: var(--st-yellow);
+    --sidebar-primary-foreground: var(--st-ink);
+    --sidebar-accent: var(--st-ink-2);
+    --sidebar-accent-foreground: var(--st-white);
+    --sidebar-border: #34363c;
+    --sidebar-ring: var(--st-focus);
+}
+
+@layer base {
+    html {
+        background: var(--st-ivory);
+    }
+
+    body {
+        font-family: var(--st-font-sans);
+    }
+
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
+}

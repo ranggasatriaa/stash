@@ -1,0 +1,138 @@
+# Stash production stack for a single VPS.
+#   docker compose build
+#   docker compose run --rm app php artisan migrate --force   # once per deployment
+#   docker compose up -d
+# PostgreSQL and Redis are only reachable on the internal network.
+# Configuration comes from .env (copy .env.example; see docs/DEPLOYMENT.md).
+
+name: stash
+
+x-app: &app
+    image: stash-app:${STASH_IMAGE_TAG:-latest}
+    build:
+        context: .
+        dockerfile: docker/Dockerfile
+        target: app
+    env_file: .env
+    environment:
+        DB_HOST: postgres
+        DB_PORT: 5432
+        REDIS_HOST: redis
+        STASH_STORAGE_ROOT: /var/www/html/storage/app/private/stash
+    volumes:
+        - stash-files:/var/www/html/storage/app/private
+    depends_on:
+        postgres:
+            condition: service_healthy
+        redis:
+            condition: service_healthy
+    restart: unless-stopped
+    networks: [internal]
+
+services:
+    app:
+        <<: *app
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'php -r ''exit(@fsockopen("127.0.0.1", 9000) ? 0 : 1);''',
+                ]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+
+    worker:
+        <<: *app
+        command:
+            [
+                'php',
+                'artisan',
+                'queue:work',
+                'redis',
+                '--queue=default,ai',
+                '--sleep=2',
+                '--tries=3',
+                '--timeout=900',
+                '--max-time=3600',
+                '--memory=512',
+            ]
+        stop_grace_period: 60s
+        healthcheck:
+            disable: true
+
+    scheduler:
+        <<: *app
+        command: ['php', 'artisan', 'schedule:work']
+        healthcheck:
+            disable: true
+
+    web:
+        image: stash-web:${STASH_IMAGE_TAG:-latest}
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+            target: web
+        ports:
+            # Bind to localhost; a TLS reverse proxy on the host forwards to it.
+            - '${STASH_HTTP_BIND:-127.0.0.1}:${STASH_HTTP_PORT:-8080}:80'
+        depends_on:
+            app:
+                condition: service_healthy
+        restart: unless-stopped
+        networks: [internal]
+
+    postgres:
+        image: postgres:18-alpine
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-stash}
+            POSTGRES_USER: ${DB_USERNAME:-stash}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+            # Unicode-aware lower()/case folding for search (PostgreSQL 17+ builtin provider).
+            POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale-provider=builtin --builtin-locale=C.UTF-8'
+        volumes:
+            - pgdata:/var/lib/postgresql
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}',
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        restart: unless-stopped
+        networks: [internal]
+
+    redis:
+        image: redis:8-alpine
+        command:
+            [
+                'redis-server',
+                '--save',
+                '',
+                '--appendonly',
+                'no',
+                '--requirepass',
+                '${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}',
+            ]
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'redis-cli -a "$${REDIS_PASSWORD}" --no-auth-warning ping | grep PONG',
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+        restart: unless-stopped
+        networks: [internal]
+
+volumes:
+    pgdata:
+    stash-files:
+
+networks:
+    internal:

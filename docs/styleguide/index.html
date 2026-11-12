@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Stash Master CSS — Style guide</title>
+        <!-- Font: bundled by the app via @fontsource-variable/nunito-sans; falls back to system fonts here. -->
+        <link
+            rel="stylesheet"
+            href="../../node_modules/@fontsource-variable/nunito-sans/index.css"
+        />
+        <link rel="stylesheet" href="../../resources/css/stash.css" />
+        <style>
+            .sg {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 32px 16px 64px;
+                display: grid;
+                gap: 24px;
+            }
+            .sg-grid {
+                display: grid;
+                gap: 24px;
+                grid-template-columns: repeat(
+                    auto-fit,
+                    minmax(min(100%, 340px), 1fr)
+                );
+            }
+            .sg-section {
+                padding: 20px;
+            }
+            .sg-section h2 {
+                margin: 0 0 16px;
+                font-size: 1.25rem;
+                font-weight: 800;
+            }
+            .sg-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            .sg-swatch {
+                width: 96px;
+            }
+            .sg-swatch div {
+                height: 56px;
+                border: 2px solid var(--st-ink);
+                border-radius: 12px;
+                box-shadow: var(--st-shadow-sm);
+            }
+            .sg-swatch p {
+                margin: 6px 0 0;
+                font-size: 12px;
+                font-weight: 700;
+            }
+            .sg-sidebar {
+                width: 100%;
+                max-width: 280px;
+                height: auto;
+                border-radius: 20px;
+            }
+        </style>
+    </head>
+    <body class="st-body">
+        <main class="sg">
+            <header class="st-cluster" style="justify-content: space-between">
+                <span class="st-brand">
+                    <svg
+                        class="st-brand__mark"
+                        viewBox="0 0 32 32"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.75"
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M16 3.5 29 10l-13 6.5L3 10 16 3.5Z" />
+                        <path d="m3 16 13 6.5L29 16" />
+                        <path d="m3 22 13 6.5L29 22" />
+                    </svg>
+                    <span class="st-brand__word">Stash</span>
+                </span>
+                <h1 class="st-h2">Master CSS · style guide</h1>
+            </header>
+
+            <div class="sg-grid">
+                <section class="st-panel sg-section">
+                    <h2>01 Color &amp; type</h2>
+                    <div class="sg-row">
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-ivory)"></div>
+                            <p>Ivory #FFF8EF</p>
+                        </div>
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-white)"></div>
+                            <p>White #FFFFFF</p>
+                        </div>
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-ink)"></div>
+                            <p>Ink #191A1D</p>
+                        </div>
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-orange)"></div>
+                            <p>Orange #FF7417</p>
+                        </div>
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-yellow)"></div>
+                            <p>Yellow #FFD83D</p>
+                        </div>
+                        <div class="sg-swatch">
+                            <div style="background: var(--st-muted)"></div>
+                            <p>Muted #62656D</p>
+                        </div>
+                    </div>
+                    <p class="st-h1">Heading 32/800</p>
+                    <p class="st-h2">Section 24/700</p>
+                    <p class="st-h3">Card 20/700</p>
+                    <p class="st-text">
+                        Body 16/400 — descriptions and content.
+                    </p>
+                    <p class="st-label">Label 14/700</p>
+                    <p class="st-meta">Meta 12/400 · timestamps, counts</p>
+                    <p>
+                        <a class="st-link" href="#">Link</a> ·
+                        <a class="st-link st-link--plain" href="#"
+                            >Plain link</a
+                        >
+                    </p>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>05 Buttons</h2>
+                    <div class="sg-row">
+                        <button class="st-btn st-btn--primary">+ Save</button>
+                        <button class="st-btn st-btn--secondary">
+                            Get started
+                        </button>
+                        <button class="st-btn st-btn--selected">All</button>
+                        <button class="st-btn st-btn--danger">Delete</button>
+                    </div>
+                    <div class="sg-row">
+                        <button class="st-btn st-btn--primary" disabled>
+                            Save
+                        </button>
+                        <button class="st-btn st-btn--primary" aria-busy="true">
+                            Saving…
+                        </button>
+                        <button class="st-btn st-btn--ghost">Ghost</button>
+                        <button
+                            class="st-btn st-btn--secondary st-btn--icon"
+                            aria-label="Filter"
+                        >
+                            ⚙
+                        </button>
+                        <button class="st-btn st-btn--secondary st-btn--sm">
+                            Small
+                        </button>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>08 Inputs</h2>
+                    <div class="st-stack">
+                        <div class="st-field">
+                            <label class="st-field__label" for="i1">Title</label
+                            ><input
+                                class="st-input"
+                                id="i1"
+                                placeholder="Title"
+                            />
+                        </div>
+                        <div class="st-field">
+                            <label class="st-field__label" for="i2"
+                                >Title (error)</label
+                            ><input
+                                class="st-input"
+                                id="i2"
+                                aria-invalid="true"
+                                value="Title"
+                            />
+                            <p class="st-field__error">Title is required</p>
+                        </div>
+                        <div class="st-field">
+                            <label class="st-field__label" for="i3"
+                                >Disabled</label
+                            ><input
+                                class="st-input"
+                                id="i3"
+                                disabled
+                                placeholder="Title"
+                            />
+                        </div>
+                        <div class="st-search">
+                            <svg
+                                class="st-search__icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                            >
+                                <circle cx="11" cy="11" r="7" />
+                                <path d="m20 20-3.5-3.5" /></svg
+                            ><input
+                                class="st-input"
+                                type="search"
+                                placeholder="Search your stash…"
+                                aria-label="Search"
+                            />
+                        </div>
+                        <textarea
+                            class="st-textarea"
+                            placeholder="A short note about this resource (optional)…"
+                            aria-label="Note"
+                        ></textarea>
+                        <select class="st-select" aria-label="Sort">
+                            <option>Sort: Recent</option>
+                            <option>Sort: Oldest</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>09 Selection controls</h2>
+                    <div class="sg-row">
+                        <label class="st-check"
+                            ><input type="checkbox" class="st-checkbox" />
+                            Unchecked</label
+                        >
+                        <label class="st-check"
+                            ><input
+                                type="checkbox"
+                                class="st-checkbox"
+                                checked
+                            />
+                            Checked</label
+                        >
+                        <label class="st-check"
+                            ><input
+                                type="checkbox"
+                                class="st-checkbox"
+                                disabled
+                            />
+                            Disabled</label
+                        >
+                    </div>
+                    <div class="sg-row">
+                        <label class="st-check"
+                            ><input type="radio" name="r" class="st-radio" />
+                            Unselected</label
+                        >
+                        <label class="st-check"
+                            ><input
+                                type="radio"
+                                name="r"
+                                class="st-radio"
+                                checked
+                            />
+                            Selected</label
+                        >
+                    </div>
+                    <div class="sg-row">
+                        <label class="st-check"
+                            ><input
+                                type="checkbox"
+                                role="switch"
+                                class="st-switch"
+                            />
+                            Off</label
+                        >
+                        <label class="st-check"
+                            ><input
+                                type="checkbox"
+                                role="switch"
+                                class="st-switch"
+                                checked
+                            />
+                            On</label
+                        >
+                    </div>
+                    <div
+                        class="st-segmented"
+                        role="group"
+                        aria-label="Category"
+                    >
+                        <button class="st-segmented__item" aria-pressed="true">
+                            All
+                        </button>
+                        <button class="st-segmented__item" aria-pressed="false">
+                            Links
+                        </button>
+                        <button class="st-segmented__item" aria-pressed="false">
+                            Images
+                        </button>
+                        <button class="st-segmented__item" aria-pressed="false">
+                            Articles
+                        </button>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>07 Badges &amp; tags</h2>
+                    <div class="st-tags" style="margin-bottom: 12px">
+                        <a class="st-tag" href="#"><span>UI/UX</span></a>
+                        <a class="st-tag st-tag--orange" href="#"
+                            ><span>Inspiration</span></a
+                        >
+                        <span class="st-tag st-tag--selected"
+                            ><span>✓ Design</span></span
+                        >
+                        <span class="st-tag st-tag--orange"
+                            ><span>Inspiration</span
+                            ><button class="st-tag__remove" aria-label="Remove">
+                                ×
+                            </button></span
+                        >
+                    </div>
+                    <div class="sg-row">
+                        <span class="st-badge st-badge--unread">Unread</span>
+                        <span class="st-badge st-badge--read">Read</span>
+                        <span class="st-badge st-badge--archived"
+                            >Archived</span
+                        >
+                        <span class="st-badge st-badge--type">Link</span>
+                        <span class="st-chip"
+                            ><span class="st-chip__label">Tag: Research</span
+                            ><button
+                                class="st-chip__remove"
+                                aria-label="Remove"
+                            >
+                                ×
+                            </button></span
+                        >
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>02 Card states</h2>
+                    <div
+                        class="st-grid"
+                        style="
+                            grid-template-columns: repeat(2, minmax(0, 1fr));
+                            gap: 16px;
+                        "
+                    >
+                        <article class="st-card st-card--interactive">
+                            <div class="st-card__media">
+                                <div class="st-card__fallback">
+                                    <span class="st-card__fallback-host"
+                                        >flow.design</span
+                                    >
+                                </div>
+                            </div>
+                            <div class="st-card__body">
+                                <h3 class="st-card__title">
+                                    Checkout flow reference
+                                </h3>
+                                <a class="st-card__host" href="#"
+                                    ><span>flow.design</span></a
+                                >
+                                <div class="st-tags">
+                                    <span class="st-tag">UI/UX</span
+                                    ><span class="st-tag st-tag--orange"
+                                        >Inspiration</span
+                                    >
+                                </div>
+                                <div class="st-card__meta">
+                                    <span>2 days ago</span>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="st-card st-card--selected">
+                            <div class="st-card__media">
+                                <div class="st-card__fallback">
+                                    <span class="st-card__fallback-host"
+                                        >Selected</span
+                                    >
+                                </div>
+                            </div>
+                            <div class="st-card__body">
+                                <h3 class="st-card__title">Selected card</h3>
+                                <div class="st-card__meta">
+                                    <span>yesterday</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>03 Alerts · 04 Toasts</h2>
+                    <div class="st-stack">
+                        <div class="st-alert" role="status">
+                            <div class="st-alert__content">
+                                <p class="st-alert__title">Resource added</p>
+                                <p class="st-alert__body">
+                                    The resource was saved to your stash.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="st-alert st-alert--info">
+                            <div class="st-alert__content">
+                                <p class="st-alert__title">
+                                    Metadata is loading
+                                </p>
+                                <p class="st-alert__body">
+                                    Fetching title, image, and description…
+                                </p>
+                            </div>
+                        </div>
+                        <div class="st-alert st-alert--warning">
+                            <div class="st-alert__content">
+                                <p class="st-alert__title">
+                                    Preview unavailable
+                                </p>
+                                <p class="st-alert__body">
+                                    We couldn't load a preview for this
+                                    resource.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="st-alert st-alert--error" role="alert">
+                            <div class="st-alert__content">
+                                <p class="st-alert__title">Upload failed</p>
+                                <p class="st-alert__body">
+                                    The file could not be uploaded.
+                                    <button class="st-alert__action">
+                                        Retry
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="st-toast" role="status">
+                            <span class="st-toast__message">Resource saved</span
+                            ><button class="st-toast__action">Undo</button
+                            ><button
+                                class="st-toast__close"
+                                aria-label="Dismiss"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div class="st-toast st-toast--error" role="alert">
+                            <span class="st-toast__message">Could not save</span
+                            ><button class="st-toast__action">Retry</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>07 Menu · tooltip · 09 tabs</h2>
+                    <div
+                        class="st-menu"
+                        role="menu"
+                        style="margin-bottom: 16px"
+                    >
+                        <button class="st-menu__item" role="menuitem">
+                            Open original
+                        </button>
+                        <button
+                            class="st-menu__item"
+                            role="menuitem"
+                            data-highlighted
+                        >
+                            Mark as read
+                        </button>
+                        <div class="st-menu__separator"></div>
+                        <button
+                            class="st-menu__item st-menu__item--danger"
+                            role="menuitem"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                    <span class="st-tooltip">Archive resource</span>
+                    <div
+                        class="st-tabs"
+                        role="tablist"
+                        style="margin-top: 16px"
+                    >
+                        <button class="st-tab" role="tab" aria-selected="false">
+                            Overview
+                        </button>
+                        <button class="st-tab" role="tab" aria-selected="true">
+                            Resources
+                        </button>
+                        <button class="st-tab" role="tab" aria-selected="false">
+                            Notes
+                        </button>
+                    </div>
+                    <nav
+                        class="st-breadcrumb"
+                        aria-label="Breadcrumb"
+                        style="margin-top: 12px"
+                    >
+                        <a href="#">Projects</a
+                        ><span class="st-breadcrumb__sep">/</span
+                        ><span>Website Redesign</span>
+                    </nav>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>08 Empty · progress · dropzone</h2>
+                    <div class="st-empty" style="padding: 16px">
+                        <p class="st-empty__title">Your stash starts here</p>
+                        <p class="st-empty__body">
+                            Save links, images and articles to keep them in one
+                            place.
+                        </p>
+                        <button class="st-btn st-btn--primary st-btn--sm">
+                            Save resource
+                        </button>
+                    </div>
+                    <div
+                        class="st-progress"
+                        role="progressbar"
+                        aria-valuenow="65"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-label="Uploading"
+                    >
+                        <div class="st-progress__bar" style="width: 65%"></div>
+                    </div>
+                    <div class="sg-row" style="margin-top: 12px">
+                        <div class="st-dropzone" style="flex: 1">
+                            <span class="st-dropzone__title"
+                                >Drop an image here</span
+                            ><span class="st-dropzone__hint"
+                                >or click to browse</span
+                            >
+                        </div>
+                        <div
+                            class="st-dropzone st-dropzone--active"
+                            style="flex: 1"
+                        >
+                            <span class="st-dropzone__title"
+                                >Drop to upload</span
+                            >
+                        </div>
+                        <div
+                            class="st-dropzone st-dropzone--invalid"
+                            style="flex: 1"
+                        >
+                            <span class="st-dropzone__title"
+                                >Invalid file type</span
+                            >
+                        </div>
+                    </div>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>02 Navigation</h2>
+                    <aside class="st-sidebar sg-sidebar">
+                        <div>
+                            <span class="st-brand"
+                                ><span class="st-brand__word">Stash</span></span
+                            >
+                            <p class="st-brand__slogan">
+                                Good finds,<br /><em>kept close.</em>
+                            </p>
+                        </div>
+                        <ul class="st-nav">
+                            <li>
+                                <a
+                                    class="st-nav__item"
+                                    aria-current="page"
+                                    href="#"
+                                    ><span class="st-nav__label">All saved</span
+                                    ><span class="st-nav__count">128</span></a
+                                >
+                            </li>
+                            <li>
+                                <a class="st-nav__item" href="#"
+                                    ><span class="st-nav__label">Bookmarks</span
+                                    ><span class="st-nav__count">56</span></a
+                                >
+                            </li>
+                            <li>
+                                <a class="st-nav__item" href="#"
+                                    ><span class="st-nav__label"
+                                        >Screenshots</span
+                                    ><span class="st-nav__count">24</span></a
+                                >
+                            </li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section class="st-panel sg-section">
+                    <h2>02 Table · pagination</h2>
+                    <div class="st-table-wrap">
+                        <table class="st-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Checkout flow</td>
+                                    <td>Link</td>
+                                    <td>2 days ago</td>
+                                </tr>
+                                <tr aria-selected="true">
+                                    <td>Brand assets</td>
+                                    <td>Image</td>
+                                    <td>5 days ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav
+                        class="st-pagination"
+                        aria-label="Pagination"
+                        style="margin-top: 12px"
+                    >
+                        <a
+                            class="st-pagination__page"
+                            href="#"
+                            aria-label="Previous"
+                            >‹</a
+                        >
+                        <a
+                            class="st-pagination__page"
+                            href="#"
+                            aria-current="page"
+                            >1</a
+                        >
+                        <a class="st-pagination__page" href="#">2</a>
+                        <a class="st-pagination__page" href="#">3</a>
+                        <a
+                            class="st-pagination__page"
+                            href="#"
+                            aria-label="Next"
+                            >›</a
+                        >
+                    </nav>
+                </section>
+            </div>
+        </main>
+    </body>
+</html>

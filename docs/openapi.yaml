@@ -1,0 +1,1809 @@
+openapi: 3.1.0
+info:
+    title: Stash API
+    version: 1.0.0
+    description: |
+        Versioned, token-authenticated API for the Stash personal library.
+
+        **Authentication.** Create a scoped personal access token in *Settings → API tokens*
+        and send it as `Authorization: Bearer <token>`. Every route requires a token
+        ability (listed per operation as `x-required-abilities`) **and** owner
+        authorization; abilities never widen access beyond the owner's own records.
+        Records owned by someone else are reported as `404`.
+
+        **Errors.** All errors use one envelope: `{"error": {"code", "message", "request_id", "details"}}`.
+        Status codes: 401 (missing/expired/revoked token), 403 (missing ability),
+        404 (not found / not yours), 409 (version or idempotency conflict), 410 (expired export),
+        422 (validation), 428 (missing version precondition), 429 (rate limit or AI budget),
+        503 (AI disabled). Every response carries `X-Request-Id`.
+
+        **Concurrency.** Resources carry an integer `version`. `PATCH /resources/{id}` requires
+        the current version (body `version` or `If-Match: W/"<version>"`). A stale version
+        returns `409 version_conflict` with the authorized current representation; nothing
+        is overwritten. Lifecycle endpoints accept an optional `version`.
+
+        **Idempotency.** Creates and costly jobs accept `Idempotency-Key` (1–255 visible ASCII).
+        Keys are scoped to owner + token. A repeat with the same body replays the stored
+        response (`Idempotent-Replayed: true`); the same key with a different body (for
+        multipart: different fields or file SHA-256) returns `409 idempotency_key_reused`.
+        Records expire after 24 hours (`STASH_IDEMPOTENCY_TTL_HOURS`).
+
+        **Rate limits.** 120 requests/minute per token; costly endpoints (exports, imports,
+        summaries, metadata refresh) 20/minute per owner.
+servers:
+    - url: http://localhost:8000/api/v1
+      description: Local development
+    - url: https://stash.example.com/api/v1
+      description: Production (replace with your domain)
+security:
+    - bearerAuth: []
+tags:
+    - name: Resources
+    - name: Files
+    - name: Tags
+    - name: Projects
+    - name: AI
+    - name: Data
+    - name: Meta
+paths:
+    /me:
+        get:
+            tags: [Meta]
+            operationId: getMe
+            summary: Current owner and token abilities
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties:
+                                            user:
+                                                {
+                                                    type: object,
+                                                    properties:
+                                                        {
+                                                            id:
+                                                                {
+                                                                    type: integer,
+                                                                },
+                                                            name:
+                                                                {
+                                                                    type: string,
+                                                                },
+                                                            timezone:
+                                                                {
+                                                                    type: string,
+                                                                },
+                                                        },
+                                                }
+                                            token:
+                                                {
+                                                    type: object,
+                                                    nullable: true,
+                                                    properties:
+                                                        {
+                                                            name:
+                                                                {
+                                                                    type: string,
+                                                                },
+                                                            abilities:
+                                                                {
+                                                                    type: array,
+                                                                    items:
+                                                                        {
+                                                                            type: string,
+                                                                        },
+                                                                },
+                                                            expires_at:
+                                                                {
+                                                                    type: string,
+                                                                    format: date-time,
+                                                                    nullable: true,
+                                                                },
+                                                        },
+                                                }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+    /resources:
+        get:
+            tags: [Resources]
+            operationId: searchResources
+            summary: Search, filter, sort and paginate resources
+            x-required-abilities: [resources:read]
+            description: |
+                Filter groups are combined with AND; `tag_mode` applies within the tag group.
+                `section` selects a navigation view (`all` = active: not archived, not trashed).
+                With `q`, the default sort is `relevance` (exact/prefix title and tag matches
+                first, then full-text rank and fuzzy trigram similarity). Ties break by id.
+            parameters:
+                - {
+                      name: section,
+                      in: query,
+                      schema:
+                          {
+                              type: string,
+                              enum:
+                                  [
+                                      all,
+                                      inbox,
+                                      bookmarks,
+                                      screenshots,
+                                      read-later,
+                                      archive,
+                                      trash,
+                                  ],
+                              default: all,
+                          },
+                  }
+                - {
+                      name: q,
+                      in: query,
+                      schema: { type: string, maxLength: 200 },
+                      description: 'Searches title, description, URL, tag names and personal notes.',
+                  }
+                - {
+                      name: 'type[]',
+                      in: query,
+                      schema:
+                          {
+                              type: array,
+                              items:
+                                  { $ref: '#/components/schemas/ResourceType' },
+                          },
+                      style: form,
+                      explode: true,
+                  }
+                - {
+                      name: 'tags[]',
+                      in: query,
+                      schema:
+                          {
+                              type: array,
+                              items: { type: string, format: ulid },
+                          },
+                      style: form,
+                      explode: true,
+                  }
+                - {
+                      name: tag_mode,
+                      in: query,
+                      schema: { type: string, enum: [any, all], default: any },
+                  }
+                - {
+                      name: project,
+                      in: query,
+                      schema: { type: string },
+                      description: 'Project id, or `none` for unassigned.',
+                  }
+                - {
+                      name: reading,
+                      in: query,
+                      schema: { type: string, enum: [unread, read] },
+                      description: Matches articles only.,
+                  }
+                - {
+                      name: from,
+                      in: query,
+                      schema: { type: string, format: date },
+                      description: "Created on/after this date in the owner's timezone.",
+                  }
+                - {
+                      name: to,
+                      in: query,
+                      schema: { type: string, format: date },
+                      description: "Created on/before this date (inclusive) in the owner's timezone.",
+                  }
+                - {
+                      name: sort,
+                      in: query,
+                      schema:
+                          {
+                              type: string,
+                              enum: [relevance, newest, oldest, title],
+                          },
+                  }
+                - {
+                      name: page,
+                      in: query,
+                      schema: { type: integer, minimum: 1, default: 1 },
+                  }
+                - {
+                      name: per_page,
+                      in: query,
+                      schema:
+                          {
+                              type: integer,
+                              minimum: 1,
+                              maximum: 100,
+                              default: 24,
+                          },
+                  }
+            responses:
+                '200':
+                    description: Page of resources
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        {
+                                            type: array,
+                                            items:
+                                                {
+                                                    $ref: '#/components/schemas/Resource',
+                                                },
+                                        }
+                                    meta:
+                                        type: object
+                                        properties:
+                                            {
+                                                page: { type: integer },
+                                                per_page: { type: integer },
+                                                total: { type: integer },
+                                                last_page: { type: integer },
+                                                sort: { type: string },
+                                            }
+                '401': { $ref: '#/components/responses/Unauthenticated' }
+                '403': { $ref: '#/components/responses/Forbidden' }
+                '422': { $ref: '#/components/responses/Invalid' }
+        post:
+            tags: [Resources]
+            operationId: createResource
+            summary: Save a URL (JSON) or upload an image (multipart)
+            x-required-abilities: [resources:write]
+            description: |
+                Returns immediately (201). Metadata enrichment or image processing is queued;
+                poll `GET /resources/{id}` and read `processing.status`. Duplicate URLs/images are
+                allowed and reported in `meta.duplicates`.
+            parameters:
+                - $ref: '#/components/parameters/IdempotencyKey'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            { $ref: '#/components/schemas/CreateUrlResource' }
+                        examples:
+                            article:
+                                value:
+                                    {
+                                        url: 'https://example.com/post',
+                                        type: article,
+                                        tags: [Research],
+                                        read_later: true,
+                                    }
+                    multipart/form-data:
+                        schema:
+                            { $ref: '#/components/schemas/CreateImageResource' }
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        {
+                                            $ref: '#/components/schemas/ResourceDetail',
+                                        }
+                                    meta:
+                                        {
+                                            type: object,
+                                            properties:
+                                                {
+                                                    duplicates:
+                                                        {
+                                                            type: array,
+                                                            items:
+                                                                {
+                                                                    $ref: '#/components/schemas/Duplicate',
+                                                                },
+                                                        },
+                                                },
+                                        }
+                '409': { $ref: '#/components/responses/Conflict' }
+                '422': { $ref: '#/components/responses/Invalid' }
+    /resources/duplicates:
+        get:
+            tags: [Resources]
+            operationId: findDuplicates
+            summary: Check for an existing resource by normalized URL or image SHA-256
+            x-required-abilities: [resources:read]
+            parameters:
+                - { name: url, in: query, schema: { type: string } }
+                - {
+                      name: sha256,
+                      in: query,
+                      schema: { type: string, pattern: '^[a-f0-9]{64}$' },
+                  }
+            responses:
+                '200':
+                    description: Matches (owner-scoped)
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            properties:
+                                                {
+                                                    data:
+                                                        {
+                                                            type: array,
+                                                            items:
+                                                                {
+                                                                    $ref: '#/components/schemas/Duplicate',
+                                                                },
+                                                        },
+                                                },
+                                        },
+                                },
+                        }
+    /resources/{id}:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        get:
+            tags: [Resources]
+            operationId: getResource
+            summary: Resource details and processing status
+            x-required-abilities: [resources:read]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                $ref: '#/components/schemas/ResourceDetail',
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+                '404': { $ref: '#/components/responses/NotFound' }
+        patch:
+            tags: [Resources]
+            operationId: updateResource
+            summary: Update metadata, notes, tags, project or reading status (version precondition)
+            x-required-abilities: [resources:write]
+            parameters:
+                - {
+                      name: If-Match,
+                      in: header,
+                      schema: { type: string, example: 'W/"3"' },
+                  }
+            requestBody:
+                required: true
+                content:
+                    {
+                        application/json:
+                            {
+                                schema:
+                                    {
+                                        $ref: '#/components/schemas/UpdateResource',
+                                    },
+                            },
+                    }
+            responses:
+                '200':
+                    description: Updated
+                    headers: { ETag: { schema: { type: string } } }
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            properties:
+                                                {
+                                                    data:
+                                                        {
+                                                            $ref: '#/components/schemas/ResourceDetail',
+                                                        },
+                                                },
+                                        },
+                                },
+                        }
+                '404': { $ref: '#/components/responses/NotFound' }
+                '409': { $ref: '#/components/responses/VersionConflict' }
+                '422': { $ref: '#/components/responses/Invalid' }
+                '428': { $ref: '#/components/responses/PreconditionRequired' }
+        delete:
+            tags: [Resources]
+            operationId: trashResource
+            summary: Move to Trash (soft delete; archive state preserved)
+            x-required-abilities: [resources:write]
+            responses:
+                '200': { $ref: '#/components/responses/ResourceOk' }
+                '404': { $ref: '#/components/responses/NotFound' }
+    /resources/{id}/archive:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        post:
+            tags: [Resources]
+            operationId: archiveResource
+            summary: Archive (hide from active views without deleting)
+            x-required-abilities: [resources:write]
+            requestBody:
+                {
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            $ref: '#/components/schemas/OptionalVersion',
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '200': { $ref: '#/components/responses/ResourceOk' }
+                '404': { $ref: '#/components/responses/NotFound' }
+                '409': { $ref: '#/components/responses/VersionConflict' }
+    /resources/{id}/restore-archive:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        post:
+            tags: [Resources]
+            operationId: restoreArchivedResource
+            summary: Remove from Archive
+            x-required-abilities: [resources:write]
+            requestBody:
+                {
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            $ref: '#/components/schemas/OptionalVersion',
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '200': { $ref: '#/components/responses/ResourceOk' }
+                '404': { $ref: '#/components/responses/NotFound' }
+    /resources/{id}/restore:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        post:
+            tags: [Resources]
+            operationId: restoreResource
+            summary: Restore from Trash
+            x-required-abilities: [resources:write]
+            requestBody:
+                {
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            $ref: '#/components/schemas/OptionalVersion',
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '200': { $ref: '#/components/responses/ResourceOk' }
+                '404': { $ref: '#/components/responses/NotFound' }
+    /resources/{id}/permanent:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        delete:
+            tags: [Resources]
+            operationId: deleteResourcePermanently
+            summary: Permanently delete a trashed resource and its files (privileged)
+            description: Not exposed as an agent tool by default. The resource must already be in Trash.
+            x-required-abilities: [resources:write, resources:delete]
+            requestBody:
+                required: true
+                content:
+                    {
+                        application/json:
+                            {
+                                schema:
+                                    {
+                                        type: object,
+                                        required: [confirm],
+                                        properties:
+                                            {
+                                                confirm:
+                                                    {
+                                                        type: boolean,
+                                                        const: true,
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+            responses:
+                '200':
+                    {
+                        description: Deleted,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                type: object,
+                                                                properties:
+                                                                    {
+                                                                        id:
+                                                                            {
+                                                                                type: string,
+                                                                            },
+                                                                        deleted:
+                                                                            {
+                                                                                type: boolean,
+                                                                            },
+                                                                    },
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+                '403': { $ref: '#/components/responses/Forbidden' }
+                '409': { $ref: '#/components/responses/Conflict' }
+    /resources/{id}/refresh-metadata:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        post:
+            tags: [Resources]
+            operationId: refreshResourceMetadata
+            summary: Queue a safe metadata refresh (manual edits are never overwritten)
+            x-required-abilities: [resources:write]
+            responses:
+                '202': { $ref: '#/components/responses/ResourceOk' }
+    /resources/bulk:
+        post:
+            tags: [Resources]
+            operationId: bulkResources
+            summary: Validated bulk operation (ownership checked per id, skipped items reported)
+            x-required-abilities: [resources:write]
+            requestBody:
+                required: true
+                content:
+                    {
+                        application/json:
+                            {
+                                schema:
+                                    {
+                                        $ref: '#/components/schemas/BulkRequest',
+                                    },
+                            },
+                    }
+            responses:
+                '200':
+                    {
+                        description: Result,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                $ref: '#/components/schemas/BulkResult',
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+                '403': { $ref: '#/components/responses/Forbidden' }
+                '422': { $ref: '#/components/responses/Invalid' }
+    /resources/{id}/summaries:
+        parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+        post:
+            tags: [AI]
+            operationId: summarizeResource
+            summary: Optional manual article summary (preview or queue)
+            x-required-abilities: [ai:run]
+            description: |
+                Articles only. `preview_only: true` returns the exact text that would be sent plus a
+                token estimate and spends nothing. Otherwise the estimate is reserved against the
+                owner's monthly budget and a job is queued (202); poll `GET /ai-runs/{id}`.
+                `source: metadata` requires `confirm_metadata_only: true`. Images and personal notes
+                are never sent. Returns 503 `ai_disabled` when not configured.
+            parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [source]
+                            properties:
+                                source:
+                                    {
+                                        type: string,
+                                        enum: [article, pasted, metadata],
+                                    }
+                                text:
+                                    {
+                                        type: string,
+                                        maxLength: 200000,
+                                        description: 'Required for pasted; for article, the previewed text to send.',
+                                    }
+                                confirm_metadata_only: { type: boolean }
+                                preview_only: { type: boolean }
+            responses:
+                '200': { description: Preview (preview_only) }
+                '202':
+                    {
+                        description: Queued or served from cache,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                $ref: '#/components/schemas/AiRun',
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+                '422': { $ref: '#/components/responses/Invalid' }
+                '429': { $ref: '#/components/responses/TooMany' }
+                '503': { $ref: '#/components/responses/Unavailable' }
+    /ai-runs/{id}:
+        get:
+            tags: [AI]
+            operationId: getAiRun
+            summary: AI run status, result and token usage
+            x-required-abilities: [resources:read]
+            parameters:
+                [
+                    {
+                        name: id,
+                        in: path,
+                        required: true,
+                        schema: { type: string },
+                    },
+                ]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                $ref: '#/components/schemas/AiRun',
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+                '404': { $ref: '#/components/responses/NotFound' }
+    /files/{id}:
+        get:
+            tags: [Files]
+            operationId: getFile
+            summary: Stream a private file (original, preview or thumbnail)
+            x-required-abilities: [resources:read]
+            parameters:
+                - {
+                      name: id,
+                      in: path,
+                      required: true,
+                      schema: { type: string },
+                  }
+                - {
+                      name: download,
+                      in: query,
+                      schema: { type: integer, enum: [0, 1] },
+                      description: '1 = Content-Disposition attachment',
+                  }
+            responses:
+                '200':
+                    {
+                        description: File bytes (image/jpeg,
+                        image/png,
+                        image/webp),
+                        headers:
+                            {
+                                X-Content-Type-Options:
+                                    { schema: { type: string } },
+                            },
+                    }
+                '404': { $ref: '#/components/responses/NotFound' }
+    /tags:
+        get:
+            tags: [Tags]
+            operationId: listTags
+            summary: Tags with active and total usage counts
+            x-required-abilities: [tags:read]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                type: array,
+                                                                items:
+                                                                    {
+                                                                        $ref: '#/components/schemas/Tag',
+                                                                    },
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+        post:
+            tags: [Tags]
+            operationId: createTag
+            summary: Create a tag (unique per owner after case/space normalization)
+            x-required-abilities: [tags:write]
+            parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            required: [name],
+                                            properties:
+                                                {
+                                                    name:
+                                                        {
+                                                            type: string,
+                                                            maxLength: 64,
+                                                        },
+                                                    color:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '201': { description: Created }
+                '422': { $ref: '#/components/responses/Invalid' }
+    /tags/{id}:
+        parameters:
+            [{ name: id, in: path, required: true, schema: { type: string } }]
+        get:
+            tags: [Tags]
+            operationId: getTag
+            x-required-abilities: [tags:read]
+            responses:
+                {
+                    '200': { description: OK },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                }
+        patch:
+            tags: [Tags]
+            operationId: updateTag
+            summary: Rename or recolor a tag
+            x-required-abilities: [tags:write]
+            requestBody:
+                {
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            properties:
+                                                {
+                                                    name: { type: string },
+                                                    color:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                {
+                    '200': { description: OK },
+                    '422': { $ref: '#/components/responses/Invalid' },
+                }
+        delete:
+            tags: [Tags]
+            operationId: deleteTag
+            summary: Delete a tag (removes associations only; resources are kept)
+            x-required-abilities: [tags:write]
+            responses:
+                {
+                    '200':
+                        {
+                            description: 'Deleted; data.detached_resources = number of resources untagged',
+                        },
+                }
+    /projects:
+        get:
+            tags: [Projects]
+            operationId: listProjects
+            x-required-abilities: [projects:read]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                type: object,
+                                                properties:
+                                                    {
+                                                        data:
+                                                            {
+                                                                type: array,
+                                                                items:
+                                                                    {
+                                                                        $ref: '#/components/schemas/Project',
+                                                                    },
+                                                            },
+                                                    },
+                                            },
+                                    },
+                            },
+                    }
+        post:
+            tags: [Projects]
+            operationId: createProject
+            x-required-abilities: [projects:write]
+            parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            required: [name],
+                                            properties:
+                                                {
+                                                    name:
+                                                        {
+                                                            type: string,
+                                                            maxLength: 120,
+                                                        },
+                                                    description:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                    color:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                    icon:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                {
+                    '201': { description: Created },
+                    '422': { $ref: '#/components/responses/Invalid' },
+                }
+    /projects/{id}:
+        parameters:
+            [{ name: id, in: path, required: true, schema: { type: string } }]
+        get:
+            tags: [Projects]
+            operationId: getProject
+            x-required-abilities: [projects:read]
+            responses:
+                {
+                    '200': { description: OK },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                }
+        patch:
+            tags: [Projects]
+            operationId: updateProject
+            x-required-abilities: [projects:write]
+            requestBody:
+                {
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            properties:
+                                                {
+                                                    name: { type: string },
+                                                    description:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                    color:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                    icon:
+                                                        {
+                                                            type: string,
+                                                            nullable: true,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses: { '200': { description: OK } }
+        delete:
+            tags: [Projects]
+            operationId: deleteProject
+            summary: Delete a project (resources are unassigned, never deleted)
+            x-required-abilities: [projects:write]
+            responses:
+                { '200': { description: 'Deleted; data.unassigned_resources' } }
+    /exports:
+        post:
+            tags: [Data]
+            operationId: createExport
+            summary: Queue an export (json, zip with attachments, or obsidian snapshot)
+            x-required-abilities: [data:export]
+            parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            required: [format],
+                                            properties:
+                                                {
+                                                    format:
+                                                        {
+                                                            type: string,
+                                                            enum:
+                                                                [
+                                                                    json,
+                                                                    zip,
+                                                                    obsidian,
+                                                                ],
+                                                        },
+                                                    include_trash:
+                                                        {
+                                                            type: boolean,
+                                                            default: false,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                {
+                    '202':
+                        {
+                            description: Queued,
+                            content:
+                                {
+                                    application/json:
+                                        {
+                                            schema:
+                                                {
+                                                    type: object,
+                                                    properties:
+                                                        {
+                                                            data:
+                                                                {
+                                                                    $ref: '#/components/schemas/Export',
+                                                                },
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+    /exports/{id}:
+        get:
+            tags: [Data]
+            operationId: getExport
+            x-required-abilities: [data:export]
+            parameters:
+                [
+                    {
+                        name: id,
+                        in: path,
+                        required: true,
+                        schema: { type: string },
+                    },
+                ]
+            responses:
+                {
+                    '200':
+                        {
+                            description: OK,
+                            content:
+                                {
+                                    application/json:
+                                        {
+                                            schema:
+                                                {
+                                                    type: object,
+                                                    properties:
+                                                        {
+                                                            data:
+                                                                {
+                                                                    $ref: '#/components/schemas/Export',
+                                                                },
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+    /exports/{id}/download:
+        get:
+            tags: [Data]
+            operationId: downloadExport
+            summary: Download a ready export (expires; 410 after expiry)
+            x-required-abilities: [data:export]
+            parameters:
+                [
+                    {
+                        name: id,
+                        in: path,
+                        required: true,
+                        schema: { type: string },
+                    },
+                ]
+            responses:
+                {
+                    '200': { description: application/json or application/zip },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                    '410': { description: Expired },
+                }
+    /imports:
+        post:
+            tags: [Data]
+            operationId: uploadImport
+            summary: Upload a Stash .json or .zip export for analysis (nothing is written yet)
+            x-required-abilities: [data:import]
+            parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            multipart/form-data:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            required: [file],
+                                            properties:
+                                                {
+                                                    file:
+                                                        {
+                                                            type: string,
+                                                            format: binary,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                {
+                    '202':
+                        {
+                            description: Uploaded; analysis queued,
+                            content:
+                                {
+                                    application/json:
+                                        {
+                                            schema:
+                                                {
+                                                    type: object,
+                                                    properties:
+                                                        {
+                                                            data:
+                                                                {
+                                                                    $ref: '#/components/schemas/Import',
+                                                                },
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+    /imports/{id}:
+        parameters:
+            [{ name: id, in: path, required: true, schema: { type: string } }]
+        get:
+            tags: [Data]
+            operationId: getImport
+            summary: Import status, preview (collisions, duplicates, errors) and report
+            x-required-abilities: [data:import]
+            responses: { '200': { description: OK } }
+        delete:
+            tags: [Data]
+            operationId: discardImport
+            x-required-abilities: [data:import]
+            responses: { '200': { description: Removed } }
+    /imports/{id}/apply:
+        post:
+            tags: [Data]
+            operationId: applyImport
+            summary: Apply an analyzed import (never overwrites existing records)
+            x-required-abilities: [data:import]
+            parameters:
+                [
+                    {
+                        name: id,
+                        in: path,
+                        required: true,
+                        schema: { type: string },
+                    },
+                ]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            type: object,
+                                            required: [collision_strategy],
+                                            properties:
+                                                {
+                                                    collision_strategy:
+                                                        {
+                                                            type: string,
+                                                            enum:
+                                                                [
+                                                                    skip,
+                                                                    duplicate,
+                                                                ],
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                }
+            responses:
+                {
+                    '202': { description: Applying },
+                    '409': { $ref: '#/components/responses/Conflict' },
+                }
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            description: Sanctum personal access token (prefix `stash_`).
+    parameters:
+        ResourceId:
+            {
+                name: id,
+                in: path,
+                required: true,
+                schema: { type: string, description: ULID },
+            }
+        IdempotencyKey:
+            {
+                name: Idempotency-Key,
+                in: header,
+                required: false,
+                schema: { type: string, maxLength: 255 },
+            }
+    responses:
+        ResourceOk:
+            {
+                description: OK,
+                content:
+                    {
+                        application/json:
+                            {
+                                schema:
+                                    {
+                                        type: object,
+                                        properties:
+                                            {
+                                                data:
+                                                    {
+                                                        $ref: '#/components/schemas/ResourceDetail',
+                                                    },
+                                            },
+                                    },
+                            },
+                    },
+            }
+        Unauthenticated:
+            {
+                description: Missing,
+                invalid,
+                expired or revoked token,
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        Forbidden:
+            {
+                description: Token is missing a required ability (code missing_ability),
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        NotFound:
+            {
+                description: Not found or not owned by the caller,
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        Conflict:
+            {
+                description: Conflict (e.g. idempotency key reused with a different body),
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        VersionConflict:
+            {
+                description: 'Stale version; details.current holds the authorized current resource',
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        PreconditionRequired:
+            {
+                description: version / If-Match missing,
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        Invalid:
+            {
+                description: Validation failed (details.fields),
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        TooMany:
+            {
+                description: Rate limited or AI budget exceeded,
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+        Unavailable:
+            {
+                description: AI not configured (ai_disabled),
+                content:
+                    {
+                        application/json:
+                            { schema: { $ref: '#/components/schemas/Error' } },
+                    },
+            }
+    schemas:
+        Error:
+            type: object
+            properties:
+                error:
+                    type: object
+                    required: [code, message]
+                    properties:
+                        code:
+                            {
+                                type: string,
+                                examples:
+                                    [
+                                        not_found,
+                                        missing_ability,
+                                        version_conflict,
+                                        validation_failed,
+                                        idempotency_key_reused,
+                                        ai_budget_exceeded,
+                                    ],
+                            }
+                        message: { type: string }
+                        request_id: { type: string }
+                        details: { type: object }
+        ResourceType: { type: string, enum: [link, image, article] }
+        File:
+            type: object
+            nullable: true
+            properties:
+                {
+                    id: { type: string },
+                    role:
+                        { type: string, enum: [original, preview, thumbnail] },
+                    url: { type: string },
+                    download_url: { type: string },
+                    mime_type: { type: string },
+                    size_bytes: { type: integer },
+                    width: { type: integer },
+                    height: { type: integer },
+                    checksum_sha256: { type: string },
+                }
+        Resource:
+            type: object
+            properties:
+                id: { type: string }
+                type: { $ref: '#/components/schemas/ResourceType' }
+                title: { type: string }
+                description: { type: string, nullable: true }
+                url: { type: string, nullable: true }
+                host: { type: string, nullable: true }
+                site_name: { type: string, nullable: true }
+                project:
+                    {
+                        type: object,
+                        nullable: true,
+                        properties:
+                            { id: { type: string }, name: { type: string } },
+                    }
+                project_id: { type: string, nullable: true }
+                tags:
+                    {
+                        type: array,
+                        items:
+                            {
+                                type: object,
+                                properties:
+                                    {
+                                        id: { type: string },
+                                        name: { type: string },
+                                        color: { type: string, nullable: true },
+                                    },
+                            },
+                    }
+                read_later: { type: boolean }
+                reading_status:
+                    { type: string, nullable: true, enum: [unread, read, null] }
+                read_at: { type: string, format: date-time, nullable: true }
+                processing:
+                    {
+                        type: object,
+                        properties:
+                            {
+                                status:
+                                    {
+                                        type: string,
+                                        enum:
+                                            [
+                                                none,
+                                                queued,
+                                                processing,
+                                                ready,
+                                                failed,
+                                            ],
+                                    },
+                                error: { type: string, nullable: true },
+                            },
+                    }
+                archived_at: { type: string, format: date-time, nullable: true }
+                deleted_at: { type: string, format: date-time, nullable: true }
+                created_at: { type: string, format: date-time }
+                updated_at: { type: string, format: date-time }
+                version: { type: integer }
+                thumbnail: { $ref: '#/components/schemas/File' }
+        ResourceDetail:
+            allOf:
+                - $ref: '#/components/schemas/Resource'
+                - type: object
+                  properties:
+                      personal_notes:
+                          {
+                              type: string,
+                              nullable: true,
+                              description: Markdown,
+                          }
+                      manual_fields:
+                          {
+                              type: array,
+                              items:
+                                  { type: string, enum: [title, description] },
+                          }
+                      preview: { $ref: '#/components/schemas/File' }
+                      original: { $ref: '#/components/schemas/File' }
+                      source_proposals:
+                          {
+                              type: object,
+                              description: Fetched values that differ from manually edited fields,
+                          }
+        CreateUrlResource:
+            type: object
+            required: [url]
+            properties:
+                url: { type: string, format: uri }
+                type: { type: string, enum: [link, article], default: link }
+                title:
+                    {
+                        type: string,
+                        maxLength: 500,
+                        description: 'Omit to use a provisional host title replaced by fetched metadata.',
+                    }
+                description: { type: string, maxLength: 5000 }
+                personal_notes: { type: string }
+                tags: { type: array, items: { type: string }, maxItems: 50 }
+                project_id: { type: string, nullable: true }
+                read_later: { type: boolean, description: Articles only }
+                reading_status:
+                    {
+                        type: string,
+                        enum: [unread, read],
+                        description: Articles only,
+                    }
+        CreateImageResource:
+            type: object
+            required: [file]
+            properties:
+                file:
+                    {
+                        type: string,
+                        format: binary,
+                        description: 'JPEG, PNG or WebP; default limits 10 MiB and 40 MP',
+                    }
+                url: { type: string, description: Optional attribution URL }
+                title: { type: string }
+                description: { type: string }
+                'tags[]': { type: array, items: { type: string } }
+                project_id: { type: string }
+        UpdateResource:
+            type: object
+            properties:
+                version:
+                    {
+                        type: integer,
+                        description: 'Required unless If-Match is sent',
+                    }
+                type: { $ref: '#/components/schemas/ResourceType' }
+                url: { type: string, nullable: true }
+                title: { type: string }
+                description: { type: string, nullable: true }
+                personal_notes: { type: string, nullable: true }
+                tags:
+                    {
+                        type: array,
+                        items: { type: string },
+                        description: Full replacement by tag name,
+                    }
+                project_id: { type: string, nullable: true }
+                read_later: { type: boolean }
+                reading_status: { type: string, enum: [unread, read] }
+        OptionalVersion:
+            { type: object, properties: { version: { type: integer } } }
+        BulkRequest:
+            type: object
+            required: [operation, ids]
+            properties:
+                operation:
+                    {
+                        type: string,
+                        enum:
+                            [
+                                add_tags,
+                                remove_tags,
+                                set_project,
+                                mark_read,
+                                mark_unread,
+                                read_later_on,
+                                read_later_off,
+                                archive,
+                                unarchive,
+                                trash,
+                                restore,
+                                delete_permanently,
+                            ],
+                    }
+                ids: { type: array, items: { type: string }, maxItems: 500 }
+                tags:
+                    {
+                        type: array,
+                        items: { type: string },
+                        description: add_tags by name,
+                    }
+                tag_ids: { type: array, items: { type: string } }
+                project_id:
+                    {
+                        type: string,
+                        nullable: true,
+                        description: 'set_project; null unassigns',
+                    }
+                confirm:
+                    {
+                        type: boolean,
+                        description: Required for delete_permanently (also needs resources:delete),
+                    }
+        BulkResult:
+            type: object
+            properties:
+                operation: { type: string }
+                requested: { type: integer }
+                changed: { type: array, items: { type: string } }
+                skipped:
+                    {
+                        type: array,
+                        items:
+                            {
+                                type: object,
+                                properties:
+                                    {
+                                        id: { type: string },
+                                        reason:
+                                            {
+                                                type: string,
+                                                examples:
+                                                    [
+                                                        not_found,
+                                                        not_article,
+                                                        unchanged,
+                                                        in_trash,
+                                                        not_in_trash,
+                                                    ],
+                                            },
+                                    },
+                            },
+                    }
+                undo:
+                    {
+                        type: object,
+                        nullable: true,
+                        description: Inverse bulk request when reliable,
+                    }
+        Duplicate:
+            type: object
+            properties:
+                {
+                    id: { type: string },
+                    title: { type: string },
+                    type: { type: string },
+                    created_at: { type: string },
+                    archived: { type: boolean },
+                    trashed: { type: boolean },
+                }
+        Tag:
+            type: object
+            properties:
+                {
+                    id: { type: string },
+                    name: { type: string },
+                    color: { type: string, nullable: true },
+                    count: { type: integer, description: Active resources },
+                    total:
+                        {
+                            type: integer,
+                            description: All associations incl. archive/trash,
+                        },
+                }
+        Project:
+            type: object
+            properties:
+                {
+                    id: { type: string },
+                    name: { type: string },
+                    description: { type: string, nullable: true },
+                    color: { type: string, nullable: true },
+                    icon: { type: string, nullable: true },
+                    count: { type: integer },
+                    total: { type: integer },
+                }
+        AiRun:
+            type: object
+            properties:
+                id: { type: string }
+                resource_id: { type: string, nullable: true }
+                status:
+                    { type: string, enum: [queued, running, succeeded, failed] }
+                model: { type: string }
+                source_kind: { type: string, enum: [article, pasted, metadata] }
+                cached: { type: boolean }
+                result:
+                    {
+                        type: object,
+                        nullable: true,
+                        properties:
+                            {
+                                summary: { type: string },
+                                key_points:
+                                    { type: array, items: { type: string } },
+                            },
+                    }
+                usage:
+                    {
+                        type: object,
+                        properties:
+                            {
+                                reserved_tokens: { type: integer },
+                                prompt_tokens:
+                                    { type: integer, nullable: true },
+                                completion_tokens:
+                                    { type: integer, nullable: true },
+                                total_tokens: { type: integer, nullable: true },
+                                estimated: { type: boolean },
+                            },
+                    }
+                error:
+                    {
+                        type: object,
+                        nullable: true,
+                        properties:
+                            {
+                                code:
+                                    {
+                                        type: string,
+                                        examples:
+                                            [
+                                                timeout,
+                                                malformed,
+                                                blank,
+                                                truncated,
+                                                refused,
+                                                rate_limited,
+                                                unavailable,
+                                                auth,
+                                            ],
+                                    },
+                                message: { type: string },
+                            },
+                    }
+        Export:
+            type: object
+            properties:
+                {
+                    id: { type: string },
+                    format: { type: string },
+                    status:
+                        {
+                            type: string,
+                            enum: [queued, processing, ready, failed, expired],
+                        },
+                    filename: { type: string },
+                    size_bytes: { type: integer },
+                    checksum_sha256: { type: string },
+                    expires_at: { type: string },
+                    download_url: { type: string, nullable: true },
+                }
+        Import:
+            type: object
+            properties:
+                {
+                    id: { type: string },
+                    status:
+                        {
+                            type: string,
+                            enum:
+                                [
+                                    uploaded,
+                                    analyzing,
+                                    ready,
+                                    invalid,
+                                    applying,
+                                    completed,
+                                    failed,
+                                ],
+                        },
+                    preview: { type: object, nullable: true },
+                    report: { type: object, nullable: true },
+                    error: { type: string, nullable: true },
+                }
+x-agent-tools:
+    description: |
+        Tool contracts for a future agent runtime / MCP server (not implemented as a runtime here).
+        Each tool maps to one endpoint and needs only the listed abilities. There is deliberately
+        no SQL, shell or permanent-delete tool.
+    tools:
+        - name: search_resources
+          operation: searchResources
+          abilities: [resources:read]
+        - name: create_resource
+          operation: createResource
+          abilities: [resources:write]
+          notes: Always send an Idempotency-Key.
+        - name: update_resource
+          operation: updateResource
+          abilities: [resources:write]
+          notes: Read the resource first; send its version. On 409, re-read and re-apply.
+        - name: assign_tags
+          operation: bulkResources
+          abilities: [resources:write]
+          notes: '{"operation":"add_tags","ids":[...],"tags":["name"]} or remove_tags with tag_ids'
+        - name: assign_project
+          operation: bulkResources
+          abilities: [resources:write]
+          notes: '{"operation":"set_project","ids":[...],"project_id":"..."}'
+        - name: summarize_resource
+          operation: summarizeResource
+          abilities: [ai:run]
+          notes: Call with preview_only first; then confirm. Respect 429 budget errors.
+        - name: archive_resource
+          operation: archiveResource
+          abilities: [resources:write]

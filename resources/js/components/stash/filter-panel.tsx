@@ -22,6 +22,7 @@ const TYPES: { key: ResourceType; label: string }[] = [
     { key: 'link', label: 'Link' },
     { key: 'article', label: 'Article' },
     { key: 'image', label: 'Image' },
+    { key: 'video', label: 'Video' },
 ];
 
 /**

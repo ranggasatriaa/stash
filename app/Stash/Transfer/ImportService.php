@@ -335,7 +335,7 @@ final class ImportService
             $fail('invalid id.');
         }
         $type = ResourceType::tryFrom((string) ($raw['type'] ?? ''));
-        if (! $type) {
+        if (! $type || $type === ResourceType::Video) {
             $fail('invalid type.');
         }
         $title = is_string($raw['title'] ?? null) ? trim(mb_substr($raw['title'], 0, 500)) : '';

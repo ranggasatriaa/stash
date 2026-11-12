@@ -1,4 +1,4 @@
-export type ResourceType = 'link' | 'image' | 'article';
+export type ResourceType = 'link' | 'image' | 'article' | 'video';
 export type ReadingStatus = 'unread' | 'read';
 export type ProcessingStatus =
     | 'none'

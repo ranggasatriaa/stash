@@ -48,7 +48,7 @@ export function StashDialog({
     description?: ReactNode;
     children?: ReactNode;
     footer?: ReactNode;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     className?: string;
     hideTitle?: boolean;
     onOpenAutoFocus?: (e: Event) => void;
@@ -64,6 +64,7 @@ export function StashDialog({
                         'st-dialog data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
                         size === 'sm' && 'st-dialog--sm',
                         size === 'lg' && 'st-dialog--lg',
+                        size === 'xl' && 'st-dialog--xl',
                         className,
                     )}
                     onOpenAutoFocus={onOpenAutoFocus}

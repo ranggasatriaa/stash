@@ -8,6 +8,7 @@ import {
     Download,
     ExternalLink,
     FileText,
+    Film,
     Image as ImageIcon,
     Link2,
     RefreshCw,
@@ -25,12 +26,11 @@ import {
     TypeBadge,
 } from '@/components/stash/badges';
 import { Markdown } from '@/components/stash/markdown';
-import { ConfirmDialog, StashSheet } from '@/components/stash/overlay';
+import { ConfirmDialog, StashDialog } from '@/components/stash/overlay';
 import { ResourcePreview } from '@/components/stash/resource-card';
 import { SummaryPanel } from '@/components/stash/summary-panel';
 import { ProjectSelect, TagInput } from '@/components/stash/tag-input';
 import { TimeAgo } from '@/components/stash/time-ago';
-import { useIsDesktop } from '@/hooks/use-media';
 import { exactTime, formatBytes } from '@/lib/format';
 import type { ResourceDetail, ResourceType } from '@/types/stash';
 
@@ -67,17 +67,12 @@ export function ResourceDetailPanel({
     open: boolean;
     onClose: () => void;
 }) {
-    const desktop = useIsDesktop();
-
     return (
-        <StashSheet
+        <StashDialog
             open={open && resource !== null}
             onOpenChange={(o) => !o && onClose()}
-            side={desktop ? 'right' : 'full'}
-            title="Resource details"
-            hideTitle
-            label="Resource details"
-            header={resource ? <HeaderBadges resource={resource} /> : null}
+            size="xl"
+            title={resource ? <HeaderBadges resource={resource} /> : 'Resource details'}
         >
             {resource && (
                 <DetailBody
@@ -86,18 +81,18 @@ export function ResourceDetailPanel({
                     onClose={onClose}
                 />
             )}
-        </StashSheet>
+        </StashDialog>
     );
 }
 
 function HeaderBadges({ resource }: { resource: ResourceDetail }) {
     return (
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        <span className="flex min-w-0 flex-wrap items-center gap-1.5 text-base">
             <TypeBadge type={resource.type} />
             <ReadingBadge status={resource.reading_status} />
             {resource.archived_at && !resource.deleted_at && <ArchivedBadge />}
             {resource.deleted_at && <TrashBadge />}
-        </div>
+        </span>
     );
 }
 
@@ -213,7 +208,17 @@ function DetailBody({
     return (
         <div className="flex flex-col gap-5 pb-6">
             <div className="overflow-hidden rounded-[16px] border-2 border-ink bg-yellow-soft">
-                {image ? (
+                {resource.type === 'video' && resource.original ? (
+                    <video
+                        src={resource.original.url}
+                        poster={resource.preview?.url}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="max-h-[420px] w-full bg-ink object-contain"
+                        aria-label={resource.title}
+                    />
+                ) : image ? (
                     <a
                         href={resource.original?.url ?? image.url}
                         target="_blank"
@@ -482,6 +487,7 @@ function DetailBody({
                                 ['link', 'Link', Link2],
                                 ['article', 'Article', FileText],
                                 ['image', 'Image', ImageIcon],
+                                ['video', 'Video', Film],
                             ] as const
                         ).map(([key, label, Icon]) => (
                             <button
@@ -490,11 +496,18 @@ function DetailBody({
                                 role="radio"
                                 aria-checked={form.type === key}
                                 className="st-segmented__item"
-                                disabled={key === 'image' && !resource.original}
+                                disabled={
+                                    (key === 'image' && !resource.original) ||
+                                    (resource.type === 'video'
+                                        ? key !== 'video'
+                                        : key === 'video')
+                                }
                                 title={
-                                    key === 'image' && !resource.original
-                                        ? 'Only uploaded images can use the image type'
-                                        : undefined
+                                    key === 'video' || resource.type === 'video'
+                                        ? 'Uploaded videos keep the video type'
+                                        : key === 'image' && !resource.original
+                                          ? 'Only uploaded images can use the image type'
+                                          : undefined
                                 }
                                 onClick={() => set('type', key)}
                             >
@@ -670,7 +683,7 @@ function DetailBody({
                         {archived ? 'Restore from Archive' : 'Archive'}
                     </button>
                 )}
-                {(resource.type !== 'image' ||
+                {((resource.type !== 'image' && resource.type !== 'video') ||
                     resource.processing.status === 'failed') &&
                     !trashed &&
                     resource.url && (
@@ -762,13 +775,15 @@ function DetailBody({
                 )}
                 {resource.original && (
                     <>
-                        <dt className="font-bold">Image</dt>
+                        <dt className="font-bold">
+                            {resource.type === 'video' ? 'Video' : 'Image'}
+                        </dt>
                         <dd className="text-muted-text">
-                            {resource.original.width}×{resource.original.height}{' '}
-                            ·{' '}
-                            {resource.original.mime_type
-                                .replace('image/', '')
-                                .toUpperCase()}
+                            {resource.type === 'video'
+                                ? `${resource.original.mime_type.replace('video/', '').toUpperCase()} · ${formatBytes(resource.original.size_bytes)}`
+                                : `${resource.original.width}×${resource.original.height} · ${resource.original.mime_type
+                                      .replace('image/', '')
+                                      .toUpperCase()}`}
                         </dd>
                     </>
                 )}

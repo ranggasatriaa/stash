@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'ai' => $user ? fn () => ['enabled' => app(SummaryService::class)->status()['enabled']] : null,
             'limits' => [
                 'upload_max_bytes' => (int) config('stash.uploads.max_bytes'),
+                'upload_max_video_bytes' => (int) config('stash.videos.max_bytes'),
                 'upload_max_pixels' => (int) config('stash.uploads.max_pixels'),
             ],
         ];

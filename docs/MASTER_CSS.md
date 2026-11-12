@@ -46,7 +46,7 @@ Base element styles only apply inside `.st-body` (nothing global is reset).
 | Semantic | `--st-success/-soft/-line`, `--st-info…`, `--st-warning…`, `--st-danger…`                                                                                             |
 | Aliases  | `--st-canvas`, `--st-surface`, `--st-text`, `--st-text-muted`, `--st-line`, `--st-sidebar`                                                                            |
 | Type     | `--st-font-sans`, `--st-text-heading 32`, `--st-text-section 24`, `--st-text-card 20`, `--st-text-body 16`, `--st-text-label 14`, `--st-text-meta 12`                 |
-| Shape    | `--st-border 2px`, `--st-radius 12px` (controls), `--st-radius-card 20px`, `--st-shadow 4px 4px 0 ink`, `--st-shadow-hover 6px 6px`, `--st-shadow-press 1px 1px`      |
+| Shape    | `--st-border 2px`, `--st-radius 12px` (controls), `--st-radius-card 20px`, `--st-shadow 4px 4px 0 ink`, `--st-shadow-hover 8px 8px` (+ `--st-lift` -4px,-4px: box moves up-left, shadow stays put), `--st-shadow-press 1px 1px`      |
 | Space    | `--st-space-1…7` = 4, 8, 12, 16, 24, 32, 48 px                                                                                                                        |
 | Size     | `--st-touch 44px`, `--st-control-h 44px`, `--st-sidebar-w`, `--st-detail-w`                                                                                           |
 

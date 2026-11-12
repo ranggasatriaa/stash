@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Play } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import {
     ArchivedBadge,
@@ -11,6 +11,20 @@ import {
 import { TimeAgo } from '@/components/stash/time-ago';
 import { cn } from '@/lib/utils';
 import type { StashResource } from '@/types/stash';
+
+const VIDEO_HOSTS =
+    /^(?:[a-z0-9-]+\.)*(?:youtube\.com|youtu\.be|youtube-nocookie\.com|vimeo\.com|dailymotion\.com|twitch\.tv|tiktok\.com|loom\.com)$/i;
+
+function isVideoUrl(url: string | null): boolean {
+    if (!url) {
+        return false;
+    }
+    try {
+        return VIDEO_HOSTS.test(new URL(url).hostname);
+    } catch {
+        return false;
+    }
+}
 
 export function ResourcePreview({ resource }: { resource: StashResource }) {
     const image = resource.thumbnail;
@@ -50,6 +64,7 @@ export function ResourceCard({
     selectable,
     onOpen,
     onToggleSelect,
+    onContextMenu,
 }: {
     resource: StashResource;
     href: string;
@@ -57,6 +72,7 @@ export function ResourceCard({
     selectable: boolean;
     onOpen: (e: MouseEvent<HTMLAnchorElement>) => void;
     onToggleSelect: (shift: boolean) => void;
+    onContextMenu?: (e: MouseEvent<HTMLElement>) => void;
 }) {
     const tags = resource.tags.slice(0, 4);
     const extra = resource.tags.length - tags.length;
@@ -69,9 +85,21 @@ export function ResourceCard({
             )}
             aria-labelledby={`card-title-${resource.id}`}
             data-testid="resource-card"
+            onContextMenu={onContextMenu}
         >
             <div className="st-card__media">
                 <ResourcePreview resource={resource} />
+                {(resource.type === 'video' || isVideoUrl(resource.url)) &&
+                    resource.thumbnail && (
+                    <span
+                        className="pointer-events-none absolute inset-0 grid place-items-center"
+                        aria-hidden="true"
+                    >
+                        <span className="grid size-11 place-items-center rounded-full border-2 border-ink bg-white/95">
+                            <Play className="ml-0.5 size-5 fill-ink text-ink" />
+                        </span>
+                    </span>
+                )}
                 <div className="st-card__overlay st-card__overlay--tl">
                     <TypeBadge type={resource.type} />
                 </div>

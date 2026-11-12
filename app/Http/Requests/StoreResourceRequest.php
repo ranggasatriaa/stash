@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/** Shared validation for saving a URL or uploading an image (web + API). */
+/** Shared validation for saving a URL or uploading an image or video (web + API). */
 class StoreResourceRequest extends FormRequest
 {
     public function authorize(): bool
@@ -15,10 +15,12 @@ class StoreResourceRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        $maxKb = (int) ceil((int) config('stash.uploads.max_bytes') / 1024);
+        $maxKb = (int) ceil(max((int) config('stash.uploads.max_bytes'), (int) config('stash.videos.max_bytes')) / 1024);
+        $posterKb = (int) ceil((int) config('stash.videos.poster_max_bytes') / 1024);
 
         return [
             'file' => ['nullable', 'file', 'max:'.$maxKb],
+            'poster' => ['nullable', 'file', 'max:'.$posterKb],
             'url' => ['nullable', 'string', 'max:4096', 'required_without:file'],
             'type' => ['nullable', 'string', 'in:link,article,image'],
             'title' => ['nullable', 'string', 'max:500'],
@@ -35,18 +37,18 @@ class StoreResourceRequest extends FormRequest
     /** @return array<string, string> */
     public function messages(): array
     {
-        $mb = round((int) config('stash.uploads.max_bytes') / 1048576, 1);
+        $mb = round(max((int) config('stash.uploads.max_bytes'), (int) config('stash.videos.max_bytes')) / 1048576, 1);
 
         return [
-            'file.max' => "The image must be at most {$mb} MB.",
-            'file.uploaded' => "The upload failed. The image must be at most {$mb} MB.",
-            'url.required_without' => 'Enter a URL or choose an image to upload.',
+            'file.max' => "The file must be at most {$mb} MB.",
+            'file.uploaded' => "The upload failed. The file must be at most {$mb} MB.",
+            'url.required_without' => 'Enter a URL or choose an image or video to upload.',
         ];
     }
 
     /** @return array<string, mixed> */
     public function payload(): array
     {
-        return $this->safe()->except('file');
+        return $this->safe()->except(['file', 'poster']);
     }
 }

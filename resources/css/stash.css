@@ -105,12 +105,13 @@
     --st-radius-card: 20px; /* cards, panels */
     --st-radius-pill: 999px;
     --st-shadow: 4px 4px 0 var(--st-ink);
-    --st-shadow-hover: 6px 6px 0 var(--st-ink);
-    --st-shadow-press: 1px 1px 0 var(--st-ink);
+    /* neobrutalism motion: hover pops out, press pushes into the shadow */
+    --st-shadow-hover: 8px 8px 0 var(--st-ink);
+    --st-shadow-press: 0 0 0 var(--st-ink);
     --st-shadow-sm: 2px 2px 0 var(--st-ink);
     --st-shadow-soft: 0 12px 32px rgb(25 26 29 / 0.16);
-    --st-lift: translate(-2px, -2px);
-    --st-press: translate(3px, 3px);
+    --st-lift: translate(-4px, -4px);
+    --st-press: translate(4px, 4px);
 
     /* Spacing scale */
     --st-space-1: 4px;
@@ -369,10 +370,10 @@
     }
     .st-btn--danger:hover {
         --st-btn-bg: var(--st-danger-soft);
-        box-shadow: 6px 6px 0 var(--st-danger);
+        box-shadow: 8px 8px 0 var(--st-danger);
     }
     .st-btn--danger:active {
-        box-shadow: 1px 1px 0 var(--st-danger);
+        box-shadow: none;
     }
     .st-btn--danger-solid {
         --st-btn-bg: #ff5a36;
@@ -408,7 +409,12 @@
         box-shadow: var(--st-shadow-sm);
     }
     .st-btn--sm:hover {
+        transform: translate(-2px, -2px);
         box-shadow: 4px 4px 0 var(--st-ink);
+    }
+    .st-btn--sm:active {
+        transform: translate(2px, 2px);
+        box-shadow: none;
     }
     .st-btn--lg {
         min-height: 52px;
@@ -465,7 +471,9 @@
         font: inherit;
         font-size: 1rem; /* 16px avoids iOS zoom */
         line-height: 1.4;
+        box-shadow: var(--st-shadow-sm);
         transition:
+            transform var(--st-dur) var(--st-ease),
             box-shadow var(--st-dur) var(--st-ease),
             border-color var(--st-dur) var(--st-ease);
         appearance: none;
@@ -475,10 +483,12 @@
         color: #8a8c92;
         opacity: 1;
     }
-    .st-input:hover:not(:disabled),
-    .st-textarea:hover:not(:disabled),
-    .st-select:hover:not(:disabled) {
+    .st-input:hover:not(:disabled):not(:focus),
+    .st-textarea:hover:not(:disabled):not(:focus),
+    .st-select:hover:not(:disabled):not(:focus) {
         background: #fffdf9;
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--st-ink);
     }
     .st-input:focus,
     .st-textarea:focus,
@@ -487,10 +497,9 @@
     .st-textarea:focus-visible,
     .st-select:focus-visible {
         outline: none;
-        border-color: var(--st-ink);
-        box-shadow:
-            0 0 0 3px var(--st-white),
-            0 0 0 6px var(--st-focus);
+        border-color: var(--st-focus);
+        transform: translate(2px, 2px);
+        box-shadow: none;
     }
     .st-input[aria-invalid='true'],
     .st-textarea[aria-invalid='true'],
@@ -912,18 +921,22 @@
         box-shadow: var(--st-shadow-hover);
     }
     .st-card--interactive:active {
-        transform: translate(2px, 2px);
+        transform: var(--st-press);
         box-shadow: var(--st-shadow-press);
     }
-    .st-card:focus-within {
-        outline: 3px solid var(--st-focus);
-        outline-offset: 3px;
+    .st-card--interactive:has(:focus-visible) {
+        transform: var(--st-lift);
+        box-shadow: var(--st-shadow-hover);
+    }
+    .st-card:focus-within,
+    .st-card :focus-visible:not(.st-checkbox) {
+        outline: none;
     }
     .st-card--selected {
         border-color: var(--st-yellow);
         box-shadow:
             0 0 0 2px var(--st-ink),
-            var(--st-shadow-hover);
+            6px 6px 0 var(--st-ink);
         outline: 3px solid var(--st-yellow);
         outline-offset: -1px;
     }
@@ -1165,6 +1178,10 @@
     .st-pagination__page:hover {
         transform: translate(-1px, -1px);
         box-shadow: 3px 3px 0 var(--st-ink);
+    }
+    .st-pagination__page:active {
+        transform: translate(2px, 2px);
+        box-shadow: none;
     }
     .st-pagination__page[aria-current='page'] {
         background: var(--st-yellow);
@@ -1423,6 +1440,10 @@
     }
     .st-dialog--lg {
         width: min(calc(100vw - 32px), 760px);
+    }
+    .st-dialog--xl {
+        width: min(calc(100vw - 32px), 1040px);
+        height: min(calc(100dvh - 32px), 860px);
     }
     .st-dialog__header {
         display: flex;
@@ -2106,6 +2127,12 @@
         transition-duration: 1ms !important;
         scroll-behavior: auto !important;
     }
+    .st-input:hover,
+    .st-textarea:hover,
+    .st-select:hover,
+    .st-input:focus,
+    .st-textarea:focus,
+    .st-select:focus,
     .st-btn:hover,
     .st-btn:active,
     .st-card--interactive:hover,

@@ -3,6 +3,7 @@ import {
     BookOpenCheck,
     CircleDot,
     FileText,
+    Film,
     Image,
     Link2,
     Loader2,
@@ -22,6 +23,7 @@ export const TYPE_META: Record<
     link: { label: 'Link', Icon: Link2 },
     image: { label: 'Image', Icon: Image },
     article: { label: 'Article', Icon: FileText },
+    video: { label: 'Video', Icon: Film },
 };
 
 export function TypeIcon({

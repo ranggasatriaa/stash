@@ -24,6 +24,8 @@ class SecurityHeaders
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        // Private app: never indexed, cached, snippeted or used for AI training.
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai');
 
         if (! $response->headers->has('Content-Security-Policy')) {
             $dev = '';
@@ -37,6 +39,7 @@ class SecurityHeaders
                 "script-src 'self' 'nonce-{$nonce}'{$dev}",
                 "style-src 'self' 'unsafe-inline'{$dev}",
                 "img-src 'self' data: blob:",
+                "media-src 'self' blob:",
                 "font-src 'self' data:{$dev}",
                 "connect-src 'self'{$dev}",
                 "object-src 'none'",

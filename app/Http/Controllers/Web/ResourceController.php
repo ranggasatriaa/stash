@@ -26,7 +26,7 @@ class ResourceController extends Controller
     {
         $user = $request->user();
         $result = $request->hasFile('file')
-            ? $this->service->createFromUpload($user, $request->file('file'), $request->payload())
+            ? $this->service->createFromUpload($user, $request->file('file'), $request->payload(), $request->file('poster'))
             : $this->service->createFromUrl($user, $request->payload());
 
         $resource = $result['resource'];

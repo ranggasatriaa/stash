@@ -50,7 +50,8 @@ final class ExportDataBuilder
             'id' => $v->id, 'name' => $v->name, 'section' => $v->section, 'filters' => $v->filters, 'sort' => $v->sort, 'position' => $v->position,
         ])->all();
 
-        $query = Resource::query()->where('user_id', $user->id)->orderBy('id');
+        // Uploaded videos are large and stay out of data exports/imports.
+        $query = Resource::query()->where('user_id', $user->id)->where('type', '<>', 'video')->orderBy('id');
         if ($includeTrash) {
             $query->withTrashed();
         }

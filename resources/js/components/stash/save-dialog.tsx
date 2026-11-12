@@ -18,11 +18,65 @@ import { fetchJson, newIdempotencyKey, sha256Hex } from '@/lib/http';
 import { cn } from '@/lib/utils';
 import type { Duplicate } from '@/types/stash';
 
-const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
+const ACCEPTED_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
+const ACCEPTED_VIDEOS = ['video/mp4', 'video/webm', 'video/quicktime'];
+const ACCEPTED = [...ACCEPTED_IMAGES, ...ACCEPTED_VIDEOS];
+/** Files above this size skip the in-browser duplicate hash. */
+const HASH_LIMIT = 64 * 1024 * 1024;
+
+/** Grab a frame near the start of a video as a JPEG poster, or null. */
+function capturePoster(file: File): Promise<File | null> {
+    return new Promise((resolve) => {
+        const url = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        let settled = false;
+        const finish = (poster: File | null) => {
+            if (settled) return;
+            settled = true;
+            URL.revokeObjectURL(url);
+            resolve(poster);
+        };
+        const timer = window.setTimeout(() => finish(null), 8000);
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.onerror = () => finish(null);
+        video.onloadedmetadata = () => {
+            const d = Number.isFinite(video.duration) ? video.duration : 0;
+            video.currentTime = d > 0 ? Math.min(1, d * 0.1) : 0;
+        };
+        video.onseeked = () => {
+            window.clearTimeout(timer);
+            const w = video.videoWidth;
+            const h = video.videoHeight;
+            if (!w || !h) return finish(null);
+            const scale = Math.min(1, 1280 / w);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(w * scale);
+            canvas.height = Math.round(h * scale);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return finish(null);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(
+                (blob) =>
+                    finish(
+                        blob
+                            ? new File([blob], 'poster.jpg', {
+                                  type: 'image/jpeg',
+                              })
+                            : null,
+                    ),
+                'image/jpeg',
+                0.85,
+            );
+        };
+        video.src = url;
+    });
+}
 
 type Errors = Partial<Record<string, string>>;
 
-/** Global "Save a resource" dialog (Link / Upload image). */
+/** Global "Save a resource" dialog (Link / Upload image or video). */
 export function SaveDialog() {
     const {
         open,
@@ -32,7 +86,10 @@ export function SaveDialog() {
         prefill,
     } = useSave();
     const page = usePage();
-    const maxBytes = page.props.limits?.upload_max_bytes ?? 10 * 1024 * 1024;
+    const maxImageBytes =
+        page.props.limits?.upload_max_bytes ?? 10 * 1024 * 1024;
+    const maxVideoBytes =
+        page.props.limits?.upload_max_video_bytes ?? 200 * 1024 * 1024;
     const scope = page.props.scope as
         | { type?: string; id?: string; name?: string }
         | null
@@ -51,6 +108,7 @@ export function SaveDialog() {
     );
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [poster, setPoster] = useState<File | null>(null);
     const [fileError, setFileError] = useState<string | null>(null);
     const [dragging, setDragging] = useState(false);
     const [duplicates, setDuplicates] = useState<Duplicate[]>([]);
@@ -127,10 +185,13 @@ export function SaveDialog() {
     const chooseFile = async (f: File) => {
         setErrors({});
         setDuplicates([]);
+        const isVideo = ACCEPTED_VIDEOS.includes(f.type);
+        const maxBytes = isVideo ? maxVideoBytes : maxImageBytes;
         if (!ACCEPTED.includes(f.type)) {
             setFile(null);
+            setPoster(null);
             setFileError(
-                `“${f.name}” is not a supported image. Use JPG, PNG or WebP.`,
+                `“${f.name}” is not supported. Use JPG, PNG or WebP images, or MP4, WebM or MOV videos.`,
             );
 
             return;
@@ -145,7 +206,11 @@ export function SaveDialog() {
         }
         setFileError(null);
         setFile(f);
-        const hash = await sha256Hex(f);
+        setPoster(null);
+        if (isVideo) {
+            void capturePoster(f).then(setPoster);
+        }
+        const hash = f.size > HASH_LIMIT ? null : await sha256Hex(f);
         if (hash) {
             fetchJson<{ duplicates: Duplicate[] }>('/resources/duplicates', {
                 body: { sha256: hash },
@@ -170,7 +235,7 @@ export function SaveDialog() {
             local.url = 'Enter a full URL starting with http:// or https://';
         }
         if (mode === 'upload' && !file) {
-            local.file = fileError ?? 'Choose an image to upload.';
+            local.file = fileError ?? 'Choose an image or video to upload.';
         }
         setErrors(local);
         if (Object.keys(local).length) return;
@@ -194,7 +259,7 @@ export function SaveDialog() {
                             }
                           : {}),
                   }
-                : { ...common, file, url: url.trim() || null };
+                : { ...common, file, poster, url: url.trim() || null };
 
         setBusy(true);
         router.post('/resources', data as never, {
@@ -220,7 +285,7 @@ export function SaveDialog() {
     const tabs = useMemo(
         () => [
             { key: 'link' as const, label: 'Link', Icon: Link2 },
-            { key: 'upload' as const, label: 'Upload image', Icon: ImageUp },
+            { key: 'upload' as const, label: 'Upload', Icon: ImageUp },
         ],
         [],
     );
@@ -290,15 +355,25 @@ export function SaveDialog() {
                 {mode === 'upload' && (
                     <div className="st-field">
                         <span className="st-field__label" id="save-file-label">
-                            Image
+                            Image or video
                         </span>
                         {file && preview ? (
                             <div className="flex items-center gap-3 rounded-[12px] border-2 border-ink bg-white p-2">
-                                <img
-                                    src={preview}
-                                    alt=""
-                                    className="size-20 shrink-0 rounded-[8px] border-2 border-ink object-cover"
-                                />
+                                {file.type.startsWith('video/') ? (
+                                    <video
+                                        src={preview}
+                                        muted
+                                        playsInline
+                                        preload="metadata"
+                                        className="size-20 shrink-0 rounded-[8px] border-2 border-ink bg-ink object-cover"
+                                    />
+                                ) : (
+                                    <img
+                                        src={preview}
+                                        alt=""
+                                        className="size-20 shrink-0 rounded-[8px] border-2 border-ink object-cover"
+                                    />
+                                )}
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate font-bold">
                                         {file.name}
@@ -310,8 +385,11 @@ export function SaveDialog() {
                                 <button
                                     type="button"
                                     className="st-icon-btn"
-                                    aria-label="Remove selected image"
-                                    onClick={() => setFile(null)}
+                                    aria-label="Remove selected file"
+                                    onClick={() => {
+                                        setFile(null);
+                                        setPoster(null);
+                                    }}
                                 >
                                     <X aria-hidden="true" />
                                 </button>
@@ -353,14 +431,15 @@ export function SaveDialog() {
                                         ? 'Drop to upload'
                                         : fileError || errors.file
                                           ? 'Invalid file'
-                                          : 'Drop an image here'}
+                                          : 'Drop an image or video here'}
                                 </span>
                                 <span
                                     className="st-dropzone__hint"
                                     id="save-file-hint"
                                 >
-                                    or click to browse · JPG, PNG, WebP · up to{' '}
-                                    {formatBytes(maxBytes)}
+                                    or click to browse · JPG, PNG, WebP up to{' '}
+                                    {formatBytes(maxImageBytes)} · MP4, WebM,
+                                    MOV up to {formatBytes(maxVideoBytes)}
                                 </span>
                             </div>
                         )}

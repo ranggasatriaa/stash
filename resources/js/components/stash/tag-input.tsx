@@ -179,7 +179,7 @@ export function TagInput({
                             id={listId}
                             role="listbox"
                             aria-label="Tag suggestions"
-                            className="st-menu absolute top-[calc(100%+10px)] left-[-12px] z-50 max-h-64 w-[min(18rem,80vw)] overflow-y-auto"
+                            className="st-menu absolute bottom-[calc(100%+10px)] left-[-12px] z-50 max-h-56 w-[min(18rem,80vw)] overflow-y-auto"
                         >
                             {suggestions.map((s, i) => (
                                 <li

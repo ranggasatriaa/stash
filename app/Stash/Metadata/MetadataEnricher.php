@@ -4,7 +4,6 @@ namespace App\Stash\Metadata;
 
 use App\Stash\Enums\FileRole;
 use App\Stash\Enums\MetadataStatus;
-use App\Stash\Enums\ResourceType;
 use App\Stash\Fetch\FetchFailedException;
 use App\Stash\Fetch\SafeFetcher;
 use App\Stash\Fetch\UnsafeUrlException;
@@ -44,7 +43,7 @@ class MetadataEnricher
     public function enrich(string $resourceId, bool $rethrowTransient = false): string
     {
         $resource = Resource::withTrashed()->find($resourceId);
-        if (! $resource || ! $resource->original_url || $resource->type === ResourceType::Image) {
+        if (! $resource || ! $resource->original_url || $resource->type->isUpload()) {
             return 'skipped';
         }
 
@@ -82,7 +81,11 @@ class MetadataEnricher
             'fetched_at' => now()->toIso8601ZuluString(),
         ];
 
-        $preview = $this->buildPreview($resource, $parsed['og_image']);
+        $preview = $this->buildPreview($resource, array_merge(
+            $parsed['image_candidates'],
+            VideoThumbnails::candidates($page->url),
+            VideoThumbnails::candidates($resource->original_url),
+        ));
 
         $obsolete = [];
         DB::transaction(function () use ($resourceId, $fetched, $preview, &$obsolete) {
@@ -138,17 +141,27 @@ class MetadataEnricher
     }
 
     /**
-     * Download the Open Graph image through the hardened fetcher and produce
-     * bounded variants. Any failure simply means "no preview".
+     * Try each candidate image URL in order and keep the first that downloads
+     * and validates. Any failure simply means "no preview".
      *
+     * @param  list<string>  $imageUrls
      * @return array<string, array<string, mixed>>|null
      */
-    private function buildPreview(Resource $resource, ?string $imageUrl): ?array
+    private function buildPreview(Resource $resource, array $imageUrls): ?array
     {
-        if (! $imageUrl) {
-            return null;
+        foreach (array_slice(array_values(array_unique($imageUrls)), 0, 6) as $imageUrl) {
+            $preview = $this->buildPreviewFrom($resource, $imageUrl);
+            if ($preview !== null) {
+                return $preview;
+            }
         }
 
+        return null;
+    }
+
+    /** @return array<string, array<string, mixed>>|null */
+    private function buildPreviewFrom(Resource $resource, string $imageUrl): ?array
+    {
         $tmp = null;
         try {
             $image = $this->fetcher->fetch($imageUrl, SafeFetcher::PROFILE_IMAGE);

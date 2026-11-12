@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Stash\Models\ResourceFile;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Streams private files after an owner check. Content-Type comes from the
@@ -17,7 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class FileController extends Controller
 {
-    public function show(Request $request, ResourceFile $file): StreamedResponse
+    public function show(Request $request, ResourceFile $file): Response
     {
         Gate::authorize('view', $file);
         abort_unless($file->status === 'ready', 404);
@@ -29,12 +32,22 @@ class FileController extends Controller
         $name = $title.'-'.$file->role->value.'.'.$file->extension;
         $disposition = $request->boolean('download') ? 'attachment' : 'inline';
 
-        return $fs->response($file->storage_key, $name, [
+        $headers = [
             'Content-Type' => $file->mime_type,
             'X-Content-Type-Options' => 'nosniff',
-            'Content-Security-Policy' => "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
+            'Content-Security-Policy' => "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox",
             'Cache-Control' => 'private, max-age=604800, immutable',
             'Cross-Origin-Resource-Policy' => 'same-origin',
-        ], $disposition);
+        ];
+
+        // Videos need HTTP Range support for seeking; Symfony's file response
+        // provides it on local disks.
+        if (str_starts_with($file->mime_type, 'video/') && $fs instanceof FilesystemAdapter && $fs->getAdapter() instanceof LocalFilesystemAdapter) {
+            return response()->file($fs->path($file->storage_key), $headers + [
+                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $name, Str::ascii($name)),
+            ]);
+        }
+
+        return $fs->response($file->storage_key, $name, $headers, $disposition);
     }
 }

@@ -66,7 +66,7 @@ class ResourceController extends Controller
     public function store(StoreResourceRequest $request): JsonResponse
     {
         $result = $request->hasFile('file')
-            ? $this->service->createFromUpload($request->user(), $request->file('file'), $request->payload())
+            ? $this->service->createFromUpload($request->user(), $request->file('file'), $request->payload(), $request->file('poster'))
             : $this->service->createFromUrl($request->user(), $request->payload());
 
         return response()->json([

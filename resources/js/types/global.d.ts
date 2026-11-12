@@ -13,7 +13,11 @@ declare module '@inertiajs/core' {
             auth: { user: StashUser };
             nav: NavData | null;
             ai: { enabled: boolean } | null;
-            limits: { upload_max_bytes: number; upload_max_pixels: number };
+            limits: {
+                upload_max_bytes: number;
+                upload_max_video_bytes: number;
+                upload_max_pixels: number;
+            };
             [key: string]: unknown;
         };
     }

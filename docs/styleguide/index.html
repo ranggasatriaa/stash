@@ -3,7 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Stash Master CSS — Style guide</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Stash Style Guide</title>
         <!-- Font: bundled by the app via @fontsource-variable/nunito-sans; falls back to system fonts here. -->
         <link
             rel="stylesheet"
@@ -11,636 +12,1117 @@
         />
         <link rel="stylesheet" href="../../resources/css/stash.css" />
         <style>
+            /* ---- Page chrome only (sg-*). Everything inside the demos is st-* from stash.css ---- */
+            :where(svg.i) {
+                width: 20px;
+                height: 20px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                flex-shrink: 0;
+            }
             .sg {
-                max-width: 1200px;
+                max-width: 1280px;
                 margin: 0 auto;
-                padding: 32px 16px 64px;
+                padding: 16px 16px 96px;
                 display: grid;
                 gap: 24px;
+            }
+            .sg-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 12px 24px;
+            }
+            .sg-head .st-brand {
+                color: var(--st-ink);
+            }
+            .sg-head h1 {
+                margin: 0;
+                font-size: clamp(1.25rem, 4vw, 1.75rem);
+                font-weight: 800;
+                line-height: 1.15;
+            }
+            .sg-head h1 small {
+                display: block;
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: var(--st-muted);
+            }
+            .sg-width {
+                margin-left: auto;
+                padding: 6px 12px;
+                border: 2px solid var(--st-ink);
+                border-radius: 999px;
+                background: var(--st-yellow);
+                font-size: 0.8125rem;
+                font-weight: 800;
+                font-variant-numeric: tabular-nums;
+                box-shadow: var(--st-shadow-sm);
+            }
+            .sg-jump {
+                position: sticky;
+                top: 0;
+                z-index: 30;
+                display: flex;
+                gap: 8px;
+                margin: 0 -16px;
+                padding: 10px 16px;
+                overflow-x: auto;
+                background: color-mix(in srgb, var(--st-ivory) 94%, transparent);
+                border-bottom: 2px solid var(--st-ink);
+                scrollbar-width: none;
+            }
+            .sg-jump::-webkit-scrollbar {
+                display: none;
+            }
+            .sg-jump a {
+                flex: none;
+                padding: 6px 12px;
+                border: 2px solid var(--st-ink);
+                border-radius: 999px;
+                background: var(--st-white);
+                color: var(--st-ink);
+                font-size: 0.8125rem;
+                font-weight: 800;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+            .sg-jump a:hover {
+                background: var(--st-yellow);
+            }
+            .sg-sheet-title {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 16px 0 0;
+                font-size: 1.5rem;
+                font-weight: 800;
+            }
+            .sg-sheet-title span {
+                padding: 4px 12px;
+                border: 2px solid var(--st-ink);
+                border-radius: 10px;
+                background: var(--st-yellow);
+                font-size: 0.875rem;
             }
             .sg-grid {
                 display: grid;
-                gap: 24px;
-                grid-template-columns: repeat(
-                    auto-fit,
-                    minmax(min(100%, 340px), 1fr)
-                );
+                gap: 20px;
+                grid-template-columns: minmax(0, 1fr);
+                align-items: start;
+            }
+            @media (min-width: 720px) {
+                .sg {
+                    padding: 24px 24px 96px;
+                }
+                .sg-jump {
+                    margin: 0 -24px;
+                    padding: 10px 24px;
+                }
+                .sg-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .sg-span-2 {
+                    grid-column: span 2;
+                }
+            }
+            @media (min-width: 1100px) {
+                .sg-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+                .sg-span-3 {
+                    grid-column: span 3;
+                }
             }
             .sg-section {
-                padding: 20px;
+                scroll-margin-top: 72px;
+                overflow: hidden;
             }
-            .sg-section h2 {
-                margin: 0 0 16px;
-                font-size: 1.25rem;
+            .sg-section > h2 {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin: 0;
+                padding: 14px 16px;
+                background: var(--st-yellow-soft);
+                border-bottom: 2px solid var(--st-ink);
+                font-size: 1.125rem;
                 font-weight: 800;
+                letter-spacing: 0.01em;
+                text-transform: uppercase;
+            }
+            .sg-section > h2 .sg-n {
+                padding: 2px 9px;
+                border: 2px solid var(--st-ink);
+                border-radius: 8px;
+                background: var(--st-yellow);
+                font-size: 0.9375rem;
+            }
+            .sg-section > h2 .sg-sub {
+                flex-basis: 100%;
+                margin: -4px 0 0;
+                font-size: 0.8125rem;
+                font-weight: 600;
+                text-transform: none;
+                letter-spacing: 0;
+                color: var(--st-muted);
+            }
+            .sg-body {
+                display: grid;
+                gap: 16px;
+                padding: 16px;
+            }
+            .sg-label {
+                margin: 0;
+                font-size: 0.8125rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--st-muted);
+            }
+            .sg-cap {
+                margin: 0;
+                font-size: 0.75rem;
+                color: var(--st-muted);
+                line-height: 1.35;
+            }
+            .sg-cap b {
+                color: var(--st-ink);
             }
             .sg-row {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 12px;
-                align-items: center;
-                margin-bottom: 12px;
+                align-items: flex-start;
             }
+            .sg-row > .sg-item {
+                display: grid;
+                gap: 6px;
+                justify-items: start;
+            }
+            .sg-item.sg-grow {
+                flex: 1 1 200px;
+            }
+            .sg-cols {
+                display: grid;
+                gap: 16px;
+                grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+            }
+            .sg-cols-2 {
+                grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+            }
+            .sg-cols-3 {
+                grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+            }
+            hr.sg-hr {
+                width: 100%;
+                margin: 0;
+                border: 0;
+                border-top: 1px solid var(--st-line-soft);
+            }
+
+            /* swatches */
             .sg-swatch {
-                width: 96px;
+                display: grid;
+                gap: 6px;
             }
-            .sg-swatch div {
-                height: 56px;
+            .sg-swatch i {
+                display: block;
+                height: 64px;
                 border: 2px solid var(--st-ink);
                 border-radius: 12px;
                 box-shadow: var(--st-shadow-sm);
             }
-            .sg-swatch p {
-                margin: 6px 0 0;
-                font-size: 12px;
-                font-weight: 700;
+            .sg-swatch b {
+                font-size: 0.875rem;
             }
-            .sg-sidebar {
+            .sg-swatch code {
+                font-size: 0.75rem;
+                color: var(--st-muted);
+                overflow-wrap: anywhere;
+            }
+            .sg-sem {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 8px;
+            }
+            .sg-sem div {
+                display: grid;
+                gap: 4px;
+                padding: 8px;
+                border: 2px solid var(--c);
+                border-radius: 10px;
+                background: var(--bg);
+                color: var(--fg);
+                font-size: 0.75rem;
+                font-weight: 800;
+                text-align: center;
+            }
+            /* type */
+            .sg-type {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 4px 12px;
+                align-items: baseline;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--st-line-soft);
+            }
+            .sg-type:last-child {
+                border-bottom: 0;
+            }
+            .sg-type > span:nth-child(2) {
+                font-size: 0.8125rem;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+            .sg-type > span:nth-child(3) {
+                grid-column: 1 / -1;
+                font-size: 0.75rem;
+                color: var(--st-muted);
+            }
+
+            /* static (non-fixed) renderings of overlay / nav components */
+            .sg-static-sidebar.st-sidebar {
+                width: 100%;
+                height: auto;
+                border-radius: 16px;
+            }
+            .sg-device {
+                border-radius: 16px;
+                overflow: hidden;
+            }
+            .sg-device .st-topbar {
+                position: static;
+                border-radius: 16px;
+            }
+            .sg-device .st-bottomnav {
+                position: static;
+                inset: auto;
+            }
+            .sg-dialog-wrap {
+                padding: 16px;
+                border-radius: 16px;
+                background: var(--st-overlay);
+            }
+            .sg-dialog-wrap .st-dialog {
+                position: static;
+                transform: none;
+                width: 100%;
+                max-height: none;
+            }
+            .sg-nav-state {
+                display: grid;
+                gap: 6px;
+                padding: 12px;
+                border-radius: 14px;
+                background: var(--st-ink);
+            }
+            .sg-nav-state .sg-label {
+                color: var(--st-ink-muted);
+            }
+
+            /* forced states so hover / pressed / focus can be inspected statically */
+            .sg-f-hover {
+                transform: var(--st-lift) !important;
+                box-shadow: var(--st-shadow-hover) !important;
+            }
+            .sg-f-press {
+                transform: var(--st-press) !important;
+                box-shadow: var(--st-shadow-press) !important;
+            }
+            .sg-f-focus {
+                outline: 3px solid var(--st-focus) !important;
+                outline-offset: 3px !important;
+            }
+            .sg-f-hover-link {
+                color: var(--st-orange-text-hover) !important;
+                text-decoration: underline !important;
+                text-decoration-thickness: 2px !important;
+            }
+            .sg-f-visited {
+                color: #8f3b14 !important;
+            }
+            .sg-f-focus-link {
+                outline: 3px solid var(--st-focus) !important;
+                outline-offset: 2px !important;
+            }
+            .sg-f-input-hover {
+                background: #fffaf2 !important;
+            }
+
+            /* icons */
+            .sg-icon {
+                display: grid;
+                justify-items: center;
+                gap: 6px;
+                padding: 10px 4px;
+                font-size: 0.8125rem;
+                font-weight: 600;
+            }
+            .sg-icon svg {
+                width: 28px;
+                height: 28px;
+            }
+
+            /* menus / dropdown demo */
+            .sg-menu-demo .st-menu {
+                border: 2px solid var(--st-ink);
+                border-radius: 12px;
+                background: var(--st-white);
+                box-shadow: var(--st-shadow);
+                padding: 4px;
                 width: 100%;
                 max-width: 280px;
-                height: auto;
-                border-radius: 20px;
+            }
+            .sg-tip-wrap {
+                display: grid;
+                justify-items: start;
+                gap: 8px;
+            }
+
+            /* skeleton card */
+            .sg-skel {
+                display: grid;
+                gap: 8px;
+                padding: 12px;
+            }
+            .sg-skel .st-skeleton {
+                height: 14px;
+            }
+            .sg-skel .sg-img {
+                height: 110px;
+            }
+
+            /* legend */
+            .sg-legend {
+                display: grid;
+                gap: 16px;
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+                align-items: start;
+            }
+            .sg-demo-box {
+                width: 56px;
+                height: 56px;
+                border: 2px solid var(--st-ink);
+                background: var(--st-white);
+            }
+            .sg-space {
+                display: flex;
+                align-items: flex-end;
+                gap: 10px;
+            }
+            .sg-space i {
+                display: block;
+                background: var(--st-orange-soft);
+                border: 1px solid var(--st-orange);
+            }
+            .sg-touch {
+                width: 44px;
+                height: 44px;
+                border: 2px dashed var(--st-ink);
+                border-radius: 12px;
+            }
+            pre.sg-code {
+                margin: 0;
+                padding: 14px;
+                overflow-x: auto;
+                border: 2px solid var(--st-ink);
+                border-radius: 12px;
+                background: var(--st-ink);
+                color: #f5efe4;
+                font-size: 0.8125rem;
+                line-height: 1.5;
+            }
+            .sg-table-tokens {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.8125rem;
+            }
+            .sg-table-tokens td,
+            .sg-table-tokens th {
+                padding: 6px 8px;
+                border-bottom: 1px solid var(--st-line-soft);
+                text-align: left;
+                vertical-align: top;
+            }
+            .sg-table-tokens code {
+                font-size: 0.75rem;
+                overflow-wrap: anywhere;
+            }
+            .sg-scroll {
+                overflow-x: auto;
+            }
+            @media (max-width: 480px) {
+                .sg-sem {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .sg-width {
+                    margin-left: 0;
+                }
+            }
+            /* keep small controls tappable on touch screens in this guide */
+            @media (pointer: coarse) {
+                .st-btn--sm {
+                    min-height: 44px;
+                }
             }
         </style>
     </head>
     <body class="st-body">
+        <!-- Icon sprite (lucide-style, stroke = currentColor) -->
+        <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+            <defs>
+                <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+                <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+                <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></symbol>
+                <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" /></symbol>
+                <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6M8 13h8M8 17h6" /></symbol>
+                <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" /></symbol>
+                <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" /><circle cx="7.5" cy="7.5" r="1" /></symbol>
+                <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" /></symbol>
+                <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h10M18 8h2M4 16h2M10 16h10" /><circle cx="16" cy="8" r="2" /><circle cx="8" cy="16" r="2" /></symbol>
+                <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1" /><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" /></symbol>
+                <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" /></symbol>
+                <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></symbol>
+                <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+                <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7" /></symbol>
+                <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z" /></symbol>
+                <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5Z" /><path d="m2 12 10 5 10-5M2 17l10 5 10-5" /></symbol>
+                <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4M12 17h.01" /></symbol>
+                <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></symbol>
+                <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m8 12 3 3 5-6" /></symbol>
+                <symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" /></symbol>
+                <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></symbol>
+                <symbol id="i-upload-cloud" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2" /><path d="M12 12v9M8 16l4-4 4 4" /></symbol>
+                <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></symbol>
+                <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" /></symbol>
+                <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol>
+                <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+                <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+                <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+                <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7" /></symbol>
+                <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5Z" /><path d="M4 19.5V22h16" /></symbol>
+                <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" /></symbol>
+            </defs>
+        </svg>
+
         <main class="sg">
-            <header class="st-cluster" style="justify-content: space-between">
+            <header class="sg-head">
                 <span class="st-brand">
-                    <svg
-                        class="st-brand__mark"
-                        viewBox="0 0 32 32"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.75"
-                        stroke-linejoin="round"
-                        stroke-linecap="round"
-                        aria-hidden="true"
-                    >
+                    <svg class="st-brand__mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
                         <path d="M16 3.5 29 10l-13 6.5L3 10 16 3.5Z" />
                         <path d="m3 16 13 6.5L29 16" />
                         <path d="m3 22 13 6.5L29 22" />
                     </svg>
                     <span class="st-brand__word">Stash</span>
                 </span>
-                <h1 class="st-h2">Master CSS · style guide</h1>
+                <h1>
+                    Stash / Style guide
+                    <small>Live reference for <code>resources/css/stash.css</code>. Every demo is real <code>st-*</code> markup.</small>
+                </h1>
+                <span class="sg-width" id="sg-width" aria-live="off">— px</span>
             </header>
 
+            <nav class="sg-jump" aria-label="Sections">
+                <a href="#color">Color &amp; type</a>
+                <a href="#icons">Icons</a>
+                <a href="#buttons">Buttons</a>
+                <a href="#links">Links</a>
+                <a href="#badges">Badges &amp; tags</a>
+                <a href="#inputs">Inputs</a>
+                <a href="#selection">Selection</a>
+                <a href="#nav">Navigation</a>
+                <a href="#cards">Cards</a>
+                <a href="#table">Table</a>
+                <a href="#alerts">Alerts &amp; toasts</a>
+                <a href="#modal">Dialogs</a>
+                <a href="#filters">Filter panel</a>
+                <a href="#menus">Menus</a>
+                <a href="#states">Empty &amp; errors</a>
+                <a href="#other">Other</a>
+                <a href="#tokens">Tokens</a>
+            </nav>
+
+            <h2 class="sg-sheet-title"><span>SHEET 01</span> Foundations &amp; Controls</h2>
+
             <div class="sg-grid">
-                <section class="st-panel sg-section">
-                    <h2>01 Color &amp; type</h2>
-                    <div class="sg-row">
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-ivory)"></div>
-                            <p>Ivory #FFF8EF</p>
+                <!-- 01 COLOR & TYPE -->
+                <section class="st-panel sg-section" id="color">
+                    <h2><span class="sg-n">01</span> Color &amp; type</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Core palette</p>
+                        <div class="sg-cols">
+                            <div class="sg-swatch"><i style="background: var(--st-ivory)"></i><b>Ivory</b><code>--st-ivory #FFF8EF</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-white)"></i><b>White</b><code>--st-white #FFFFFF</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-ink)"></i><b>Ink</b><code>--st-ink #191A1D</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-orange)"></i><b>Orange</b><code>--st-orange #FF7417</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-yellow)"></i><b>Yellow</b><code>--st-yellow #FFD83D</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-muted)"></i><b>Muted</b><code>--st-muted #62656D</code></div>
                         </div>
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-white)"></div>
-                            <p>White #FFFFFF</p>
+                        <p class="sg-label">Derived</p>
+                        <div class="sg-cols">
+                            <div class="sg-swatch"><i style="background: var(--st-orange-hover)"></i><b>Orange hover</b><code>#FF8A3D</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-orange-text)"></i><b>Orange text</b><code>#C2410C</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-yellow-soft)"></i><b>Yellow soft</b><code>#FFF4C2</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-focus)"></i><b>Focus</b><code>#E35D00</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-surface-hover)"></i><b>Surface hover</b><code>#F7F1E6</code></div>
+                            <div class="sg-swatch"><i style="background: var(--st-disabled-bg)"></i><b>Disabled</b><code>#ECEBE8</code></div>
                         </div>
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-ink)"></div>
-                            <p>Ink #191A1D</p>
+                        <p class="sg-label">Semantic (line / soft / text)</p>
+                        <div class="sg-sem">
+                            <div style="--c: var(--st-success-line); --bg: var(--st-success-soft); --fg: var(--st-success)">Success</div>
+                            <div style="--c: var(--st-info-line); --bg: var(--st-info-soft); --fg: var(--st-info)">Info</div>
+                            <div style="--c: var(--st-warning-line); --bg: var(--st-warning-soft); --fg: var(--st-warning)">Warning</div>
+                            <div style="--c: var(--st-danger-line); --bg: var(--st-danger-soft); --fg: var(--st-danger)">Danger</div>
                         </div>
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-orange)"></div>
-                            <p>Orange #FF7417</p>
-                        </div>
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-yellow)"></div>
-                            <p>Yellow #FFD83D</p>
-                        </div>
-                        <div class="sg-swatch">
-                            <div style="background: var(--st-muted)"></div>
-                            <p>Muted #62656D</p>
-                        </div>
-                    </div>
-                    <p class="st-h1">Heading 32/800</p>
-                    <p class="st-h2">Section 24/700</p>
-                    <p class="st-h3">Card 20/700</p>
-                    <p class="st-text">
-                        Body 16/400 — descriptions and content.
-                    </p>
-                    <p class="st-label">Label 14/700</p>
-                    <p class="st-meta">Meta 12/400 · timestamps, counts</p>
-                    <p>
-                        <a class="st-link" href="#">Link</a> ·
-                        <a class="st-link st-link--plain" href="#"
-                            >Plain link</a
-                        >
-                    </p>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>05 Buttons</h2>
-                    <div class="sg-row">
-                        <button class="st-btn st-btn--primary">+ Save</button>
-                        <button class="st-btn st-btn--secondary">
-                            Get started
-                        </button>
-                        <button class="st-btn st-btn--selected">All</button>
-                        <button class="st-btn st-btn--danger">Delete</button>
-                    </div>
-                    <div class="sg-row">
-                        <button class="st-btn st-btn--primary" disabled>
-                            Save
-                        </button>
-                        <button class="st-btn st-btn--primary" aria-busy="true">
-                            Saving…
-                        </button>
-                        <button class="st-btn st-btn--ghost">Ghost</button>
-                        <button
-                            class="st-btn st-btn--secondary st-btn--icon"
-                            aria-label="Filter"
-                        >
-                            ⚙
-                        </button>
-                        <button class="st-btn st-btn--secondary st-btn--sm">
-                            Small
-                        </button>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>08 Inputs</h2>
-                    <div class="st-stack">
-                        <div class="st-field">
-                            <label class="st-field__label" for="i1">Title</label
-                            ><input
-                                class="st-input"
-                                id="i1"
-                                placeholder="Title"
-                            />
-                        </div>
-                        <div class="st-field">
-                            <label class="st-field__label" for="i2"
-                                >Title (error)</label
-                            ><input
-                                class="st-input"
-                                id="i2"
-                                aria-invalid="true"
-                                value="Title"
-                            />
-                            <p class="st-field__error">Title is required</p>
-                        </div>
-                        <div class="st-field">
-                            <label class="st-field__label" for="i3"
-                                >Disabled</label
-                            ><input
-                                class="st-input"
-                                id="i3"
-                                disabled
-                                placeholder="Title"
-                            />
-                        </div>
-                        <div class="st-search">
-                            <svg
-                                class="st-search__icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2.5"
-                            >
-                                <circle cx="11" cy="11" r="7" />
-                                <path d="m20 20-3.5-3.5" /></svg
-                            ><input
-                                class="st-input"
-                                type="search"
-                                placeholder="Search your stash…"
-                                aria-label="Search"
-                            />
-                        </div>
-                        <textarea
-                            class="st-textarea"
-                            placeholder="A short note about this resource (optional)…"
-                            aria-label="Note"
-                        ></textarea>
-                        <select class="st-select" aria-label="Sort">
-                            <option>Sort: Recent</option>
-                            <option>Sort: Oldest</option>
-                        </select>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>09 Selection controls</h2>
-                    <div class="sg-row">
-                        <label class="st-check"
-                            ><input type="checkbox" class="st-checkbox" />
-                            Unchecked</label
-                        >
-                        <label class="st-check"
-                            ><input
-                                type="checkbox"
-                                class="st-checkbox"
-                                checked
-                            />
-                            Checked</label
-                        >
-                        <label class="st-check"
-                            ><input
-                                type="checkbox"
-                                class="st-checkbox"
-                                disabled
-                            />
-                            Disabled</label
-                        >
-                    </div>
-                    <div class="sg-row">
-                        <label class="st-check"
-                            ><input type="radio" name="r" class="st-radio" />
-                            Unselected</label
-                        >
-                        <label class="st-check"
-                            ><input
-                                type="radio"
-                                name="r"
-                                class="st-radio"
-                                checked
-                            />
-                            Selected</label
-                        >
-                    </div>
-                    <div class="sg-row">
-                        <label class="st-check"
-                            ><input
-                                type="checkbox"
-                                role="switch"
-                                class="st-switch"
-                            />
-                            Off</label
-                        >
-                        <label class="st-check"
-                            ><input
-                                type="checkbox"
-                                role="switch"
-                                class="st-switch"
-                                checked
-                            />
-                            On</label
-                        >
-                    </div>
-                    <div
-                        class="st-segmented"
-                        role="group"
-                        aria-label="Category"
-                    >
-                        <button class="st-segmented__item" aria-pressed="true">
-                            All
-                        </button>
-                        <button class="st-segmented__item" aria-pressed="false">
-                            Links
-                        </button>
-                        <button class="st-segmented__item" aria-pressed="false">
-                            Images
-                        </button>
-                        <button class="st-segmented__item" aria-pressed="false">
-                            Articles
-                        </button>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>07 Badges &amp; tags</h2>
-                    <div class="st-tags" style="margin-bottom: 12px">
-                        <a class="st-tag" href="#"><span>UI/UX</span></a>
-                        <a class="st-tag st-tag--orange" href="#"
-                            ><span>Inspiration</span></a
-                        >
-                        <span class="st-tag st-tag--selected"
-                            ><span>✓ Design</span></span
-                        >
-                        <span class="st-tag st-tag--orange"
-                            ><span>Inspiration</span
-                            ><button class="st-tag__remove" aria-label="Remove">
-                                ×
-                            </button></span
-                        >
-                    </div>
-                    <div class="sg-row">
-                        <span class="st-badge st-badge--unread">Unread</span>
-                        <span class="st-badge st-badge--read">Read</span>
-                        <span class="st-badge st-badge--archived"
-                            >Archived</span
-                        >
-                        <span class="st-badge st-badge--type">Link</span>
-                        <span class="st-chip"
-                            ><span class="st-chip__label">Tag: Research</span
-                            ><button
-                                class="st-chip__remove"
-                                aria-label="Remove"
-                            >
-                                ×
-                            </button></span
-                        >
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>02 Card states</h2>
-                    <div
-                        class="st-grid"
-                        style="
-                            grid-template-columns: repeat(2, minmax(0, 1fr));
-                            gap: 16px;
-                        "
-                    >
-                        <article class="st-card st-card--interactive">
-                            <div class="st-card__media">
-                                <div class="st-card__fallback">
-                                    <span class="st-card__fallback-host"
-                                        >flow.design</span
-                                    >
-                                </div>
-                            </div>
-                            <div class="st-card__body">
-                                <h3 class="st-card__title">
-                                    Checkout flow reference
-                                </h3>
-                                <a class="st-card__host" href="#"
-                                    ><span>flow.design</span></a
-                                >
-                                <div class="st-tags">
-                                    <span class="st-tag">UI/UX</span
-                                    ><span class="st-tag st-tag--orange"
-                                        >Inspiration</span
-                                    >
-                                </div>
-                                <div class="st-card__meta">
-                                    <span>2 days ago</span>
-                                </div>
-                            </div>
-                        </article>
-                        <article class="st-card st-card--selected">
-                            <div class="st-card__media">
-                                <div class="st-card__fallback">
-                                    <span class="st-card__fallback-host"
-                                        >Selected</span
-                                    >
-                                </div>
-                            </div>
-                            <div class="st-card__body">
-                                <h3 class="st-card__title">Selected card</h3>
-                                <div class="st-card__meta">
-                                    <span>yesterday</span>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>03 Alerts · 04 Toasts</h2>
-                    <div class="st-stack">
-                        <div class="st-alert" role="status">
-                            <div class="st-alert__content">
-                                <p class="st-alert__title">Resource added</p>
-                                <p class="st-alert__body">
-                                    The resource was saved to your stash.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="st-alert st-alert--info">
-                            <div class="st-alert__content">
-                                <p class="st-alert__title">
-                                    Metadata is loading
-                                </p>
-                                <p class="st-alert__body">
-                                    Fetching title, image, and description…
-                                </p>
-                            </div>
-                        </div>
-                        <div class="st-alert st-alert--warning">
-                            <div class="st-alert__content">
-                                <p class="st-alert__title">
-                                    Preview unavailable
-                                </p>
-                                <p class="st-alert__body">
-                                    We couldn't load a preview for this
-                                    resource.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="st-alert st-alert--error" role="alert">
-                            <div class="st-alert__content">
-                                <p class="st-alert__title">Upload failed</p>
-                                <p class="st-alert__body">
-                                    The file could not be uploaded.
-                                    <button class="st-alert__action">
-                                        Retry
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="st-toast" role="status">
-                            <span class="st-toast__message">Resource saved</span
-                            ><button class="st-toast__action">Undo</button
-                            ><button
-                                class="st-toast__close"
-                                aria-label="Dismiss"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <div class="st-toast st-toast--error" role="alert">
-                            <span class="st-toast__message">Could not save</span
-                            ><button class="st-toast__action">Retry</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>07 Menu · tooltip · 09 tabs</h2>
-                    <div
-                        class="st-menu"
-                        role="menu"
-                        style="margin-bottom: 16px"
-                    >
-                        <button class="st-menu__item" role="menuitem">
-                            Open original
-                        </button>
-                        <button
-                            class="st-menu__item"
-                            role="menuitem"
-                            data-highlighted
-                        >
-                            Mark as read
-                        </button>
-                        <div class="st-menu__separator"></div>
-                        <button
-                            class="st-menu__item st-menu__item--danger"
-                            role="menuitem"
-                        >
-                            Delete
-                        </button>
-                    </div>
-                    <span class="st-tooltip">Archive resource</span>
-                    <div
-                        class="st-tabs"
-                        role="tablist"
-                        style="margin-top: 16px"
-                    >
-                        <button class="st-tab" role="tab" aria-selected="false">
-                            Overview
-                        </button>
-                        <button class="st-tab" role="tab" aria-selected="true">
-                            Resources
-                        </button>
-                        <button class="st-tab" role="tab" aria-selected="false">
-                            Notes
-                        </button>
-                    </div>
-                    <nav
-                        class="st-breadcrumb"
-                        aria-label="Breadcrumb"
-                        style="margin-top: 12px"
-                    >
-                        <a href="#">Projects</a
-                        ><span class="st-breadcrumb__sep">/</span
-                        ><span>Website Redesign</span>
-                    </nav>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>08 Empty · progress · dropzone</h2>
-                    <div class="st-empty" style="padding: 16px">
-                        <p class="st-empty__title">Your stash starts here</p>
-                        <p class="st-empty__body">
-                            Save links, images and articles to keep them in one
-                            place.
-                        </p>
-                        <button class="st-btn st-btn--primary st-btn--sm">
-                            Save resource
-                        </button>
-                    </div>
-                    <div
-                        class="st-progress"
-                        role="progressbar"
-                        aria-valuenow="65"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        aria-label="Uploading"
-                    >
-                        <div class="st-progress__bar" style="width: 65%"></div>
-                    </div>
-                    <div class="sg-row" style="margin-top: 12px">
-                        <div class="st-dropzone" style="flex: 1">
-                            <span class="st-dropzone__title"
-                                >Drop an image here</span
-                            ><span class="st-dropzone__hint"
-                                >or click to browse</span
-                            >
-                        </div>
-                        <div
-                            class="st-dropzone st-dropzone--active"
-                            style="flex: 1"
-                        >
-                            <span class="st-dropzone__title"
-                                >Drop to upload</span
-                            >
-                        </div>
-                        <div
-                            class="st-dropzone st-dropzone--invalid"
-                            style="flex: 1"
-                        >
-                            <span class="st-dropzone__title"
-                                >Invalid file type</span
-                            >
-                        </div>
-                    </div>
-                </section>
-
-                <section class="st-panel sg-section">
-                    <h2>02 Navigation</h2>
-                    <aside class="st-sidebar sg-sidebar">
+                        <p class="sg-cap"><b>Rule:</b> orange <code>#FF7417</code> is for fills only. Use <code>--st-orange-text</code> for orange text on light backgrounds (AA contrast).</p>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Nunito Sans: implementation reference</p>
                         <div>
-                            <span class="st-brand"
-                                ><span class="st-brand__word">Stash</span></span
-                            >
-                            <p class="st-brand__slogan">
-                                Good finds,<br /><em>kept close.</em>
-                            </p>
+                            <div class="sg-type"><span class="st-h1">Heading</span><span>32 / 800</span><span>Page title, hero title · <code>.st-h1</code></span></div>
+                            <div class="sg-type"><span class="st-h2">Section</span><span>24 / 700</span><span>Section heading, group title · <code>.st-h2</code></span></div>
+                            <div class="sg-type"><span class="st-h3">Card</span><span>20 / 700</span><span>Card title, key item title · <code>.st-h3</code></span></div>
+                            <div class="sg-type"><span class="st-text">Body</span><span>16 / 400</span><span>Body text, description, content · <code>.st-text</code></span></div>
+                            <div class="sg-type"><span class="st-label">Label</span><span>14 / 700</span><span>UI label, button text, badge · <code>.st-label</code></span></div>
+                            <div class="sg-type"><span class="st-meta">Meta</span><span>12 / 400</span><span>Meta info, timestamps, counts · <code>.st-meta</code></span></div>
                         </div>
-                        <ul class="st-nav">
-                            <li>
-                                <a
-                                    class="st-nav__item"
-                                    aria-current="page"
-                                    href="#"
-                                    ><span class="st-nav__label">All saved</span
-                                    ><span class="st-nav__count">128</span></a
-                                >
-                            </li>
-                            <li>
-                                <a class="st-nav__item" href="#"
-                                    ><span class="st-nav__label">Bookmarks</span
-                                    ><span class="st-nav__count">56</span></a
-                                >
-                            </li>
-                            <li>
-                                <a class="st-nav__item" href="#"
-                                    ><span class="st-nav__label"
-                                        >Screenshots</span
-                                    ><span class="st-nav__count">24</span></a
-                                >
-                            </li>
-                        </ul>
-                    </aside>
+                    </div>
                 </section>
 
-                <section class="st-panel sg-section">
-                    <h2>02 Table · pagination</h2>
-                    <div class="st-table-wrap">
-                        <table class="st-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Checkout flow</td>
-                                    <td>Link</td>
-                                    <td>2 days ago</td>
-                                </tr>
-                                <tr aria-selected="true">
-                                    <td>Brand assets</td>
-                                    <td>Image</td>
-                                    <td>5 days ago</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- 04 ICONS -->
+                <section class="st-panel sg-section" id="icons">
+                    <h2><span class="sg-n">02</span> Icon library<span class="sg-sub">Lucide-style, 2px stroke, <code>currentColor</code>. Sprite is at the top of this file.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-cols" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 84px), 1fr)); gap: 4px">
+                            <div class="sg-icon"><svg class="i"><use href="#i-search" /></svg>Search</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-plus" /></svg>Save</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-link" /></svg>Link</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-image" /></svg>Image</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-file" /></svg>Article</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-folder" /></svg>Project</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-tag" /></svg>Tag</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-sliders" /></svg>Filter</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-archive" /></svg>Archive</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-settings" /></svg>Settings</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-more" /></svg>More</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-x" /></svg>Close</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-check" /></svg>Check</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-bookmark" /></svg>Bookmark</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-pencil" /></svg>Edit</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-trash" /></svg>Delete</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-external" /></svg>Open</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-upload" /></svg>Upload</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-chevron-down" /></svg>Chevron</div>
+                            <div class="sg-icon"><svg class="i"><use href="#i-layers" /></svg>Brand</div>
+                        </div>
                     </div>
-                    <nav
-                        class="st-pagination"
-                        aria-label="Pagination"
-                        style="margin-top: 12px"
-                    >
-                        <a
-                            class="st-pagination__page"
-                            href="#"
-                            aria-label="Previous"
-                            >‹</a
-                        >
-                        <a
-                            class="st-pagination__page"
-                            href="#"
-                            aria-current="page"
-                            >1</a
-                        >
-                        <a class="st-pagination__page" href="#">2</a>
-                        <a class="st-pagination__page" href="#">3</a>
-                        <a
-                            class="st-pagination__page"
-                            href="#"
-                            aria-label="Next"
-                            >›</a
-                        >
-                    </nav>
+                </section>
+
+                <!-- 05 BUTTONS -->
+                <section class="st-panel sg-section" id="buttons">
+                    <h2><span class="sg-n">03</span> Button states</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Primary button (main action)</p>
+                        <div class="sg-row">
+                            <div class="sg-item"><button class="st-btn st-btn--primary"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Default</b>: shadow 4px 4px</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary sg-f-hover" style="background: var(--st-orange-hover)"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Hover</b>: moves up-left 4px, shadow grows to 8px so it stays anchored</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary sg-f-press"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Pressed</b>: down-right, shadow 1px</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary sg-f-focus"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Focus</b>: keyboard ring</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary" disabled><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Disabled</b>: not interactive</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary" aria-busy="true">Saving…</button><p class="sg-cap"><b>Loading</b>: <code>aria-busy="true"</code></p></div>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Other button types</p>
+                        <div class="sg-row">
+                            <div class="sg-item"><button class="st-btn st-btn--secondary">Get Started</button><p class="sg-cap"><b>Secondary</b>: neutral</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--selected">All</button><p class="sg-cap"><b>Selected</b>: active toggle</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--icon" aria-label="Filter"><svg class="i"><use href="#i-sliders" /></svg></button><p class="sg-cap"><b>Icon-only</b></p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--danger">Delete</button><p class="sg-cap"><b>Destructive</b>: outline</p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--danger-solid">Delete</button><p class="sg-cap"><b>Danger solid</b></p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--ghost">Ghost</button><p class="sg-cap"><b>Ghost</b></p></div>
+                        </div>
+                        <p class="sg-label">Sizes</p>
+                        <div class="sg-row" style="align-items: center">
+                            <button class="st-btn st-btn--primary st-btn--sm">Small 36</button>
+                            <button class="st-btn st-btn--primary">Default 44</button>
+                            <button class="st-btn st-btn--primary st-btn--lg">Large 52</button>
+                        </div>
+                        <button class="st-btn st-btn--primary st-btn--block">Block button</button>
+                    </div>
+                </section>
+
+                <!-- 06 LINKS -->
+                <section class="st-panel sg-section" id="links">
+                    <h2><span class="sg-n">04</span> Links</h2>
+                    <div class="sg-body">
+                        <div class="sg-row" style="gap: 20px">
+                            <div class="sg-item"><a class="st-link" href="#links" onclick="return false">Default</a><p class="sg-cap">Normal</p></div>
+                            <div class="sg-item"><a class="st-link sg-f-hover-link" href="#links" onclick="return false">Hover</a><p class="sg-cap">Underlined</p></div>
+                            <div class="sg-item"><a class="st-link sg-f-focus-link" href="#links" onclick="return false">Focus</a><p class="sg-cap">Orange ring</p></div>
+                            <div class="sg-item"><a class="st-link sg-f-visited" href="#links" onclick="return false">Visited</a><p class="sg-cap">Previously opened</p></div>
+                        </div>
+                        <p class="st-text">Inline: read the <a class="st-link" href="#links" onclick="return false">Master CSS notes</a> before re-theming. <a class="st-link st-link--plain" href="#links" onclick="return false">Plain variant</a> keeps the same colour once visited.</p>
+                    </div>
+                </section>
+
+                <!-- 07 BADGES & TAGS -->
+                <section class="st-panel sg-section" id="badges">
+                    <h2><span class="sg-n">05</span> Badges &amp; tags</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Clickable tags (interactive, with shadow)</p>
+                        <div class="st-tags">
+                            <button class="st-tag st-tag--white">UI/UX</button>
+                            <button class="st-tag st-tag--orange">Inspiration</button>
+                            <button class="st-tag st-tag--orange">Design</button>
+                            <button class="st-tag st-tag--orange">Productivity</button>
+                        </div>
+                        <div class="sg-row">
+                            <div class="sg-item"><button class="st-tag st-tag--selected"><svg class="i" style="width: 14px; height: 14px"><use href="#i-check" /></svg><span>Design</span></button><p class="sg-cap"><b>Selected</b>: check</p></div>
+                            <div class="sg-item"><span class="st-tag st-tag--orange"><span>Inspiration</span><button class="st-tag__remove" aria-label="Remove Inspiration"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span><p class="sg-cap"><b>Removable</b>: close (×)</p></div>
+                            <div class="sg-item"><span class="st-tag st-tag--soft">Soft</span><p class="sg-cap"><b>Soft</b>: passive</p></div>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Status labels (passive, no shadow)</p>
+                        <div class="sg-row">
+                            <div class="sg-item"><span class="st-badge st-badge--unread">Unread</span><p class="sg-cap">new item</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--read">Read</span><p class="sg-cap">viewed item</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--archived">Archived</span><p class="sg-cap">no longer active</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--trash">Trash</span><p class="sg-cap">deleted</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--warning">Warning</span><p class="sg-cap">attention</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--type">Link</span><p class="sg-cap">type</p></div>
+                            <div class="sg-item"><span class="st-badge st-badge--outline">Outline</span><p class="sg-cap">outline</p></div>
+                        </div>
+                        <p class="sg-label">Filter chips (active filters)</p>
+                        <div class="sg-row">
+                            <span class="st-chip"><span class="st-chip__label">Type: Link</span><button class="st-chip__remove" aria-label="Remove"><svg class="i"><use href="#i-x" /></svg></button></span>
+                            <span class="st-chip"><span class="st-chip__label">Tag: UI/UX</span><button class="st-chip__remove" aria-label="Remove"><svg class="i"><use href="#i-x" /></svg></button></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 08 INPUTS -->
+                <section class="st-panel sg-section" id="inputs">
+                    <h2><span class="sg-n">06</span> Inputs</h2>
+                    <div class="sg-body">
+                        <div class="st-field"><label class="st-field__label" for="i1">Textbox (default)</label><input id="i1" class="st-input" placeholder="Title" /></div>
+                        <div class="st-field"><label class="st-field__label" for="i2">Textbox (focus)</label><input id="i2" class="st-input sg-f-focus" style="outline-offset: 2px" placeholder="Title" value="" /></div>
+                        <div class="st-field"><label class="st-field__label" for="i3">Textbox (filled)</label><input id="i3" class="st-input" value="Design systems" /></div>
+                        <div class="st-field"><label class="st-field__label" for="i4">Textbox (error)</label><input id="i4" class="st-input" aria-invalid="true" placeholder="Title" aria-describedby="i4e" /><p class="st-field__error" id="i4e">Title is required</p></div>
+                        <div class="st-field"><label class="st-field__label" for="i5">Textbox (disabled)</label><input id="i5" class="st-input" disabled placeholder="Title" /></div>
+                        <div class="st-field">
+                            <span class="st-field__label">Search input</span>
+                            <div class="st-search"><svg class="i st-search__icon"><use href="#i-search" /></svg><input class="st-input" type="search" placeholder="Search your stash…" aria-label="Search" /></div>
+                        </div>
+                        <div class="st-field"><label class="st-field__label" for="i6">Multiline (note)</label><textarea id="i6" class="st-textarea" placeholder="A short note about this resource (optional)…"></textarea><p class="st-field__hint">Hint text sits under the control.</p></div>
+                        <div class="st-field"><label class="st-field__label" for="i7">Select (dropdown)</label>
+                            <select id="i7" class="st-select"><option>Sort: Recent</option><option>Sort: Oldest</option><option>Sort: A → Z</option><option>Sort: Z → A</option></select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 09 SELECTION -->
+                <section class="st-panel sg-section" id="selection">
+                    <h2><span class="sg-n">07</span> Selection controls</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Checkboxes</p>
+                        <div class="sg-row" style="gap: 20px">
+                            <label class="st-check"><input type="checkbox" class="st-checkbox" /> Unchecked</label>
+                            <label class="st-check"><input type="checkbox" class="st-checkbox" checked /> Checked</label>
+                            <label class="st-check"><input type="checkbox" class="st-checkbox" disabled /> Disabled</label>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Radio buttons</p>
+                        <div class="sg-row" style="gap: 20px">
+                            <label class="st-check"><input type="radio" name="sg-r" class="st-radio" /> Unselected</label>
+                            <label class="st-check"><input type="radio" name="sg-r" class="st-radio" checked /> Selected</label>
+                            <label class="st-check"><input type="radio" name="sg-r2" class="st-radio" disabled /> Disabled</label>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Switch (toggle)</p>
+                        <div class="sg-row" style="gap: 20px">
+                            <label class="st-check"><input type="checkbox" role="switch" class="st-switch" /> Off</label>
+                            <label class="st-check"><input type="checkbox" role="switch" class="st-switch" checked /> On</label>
+                            <label class="st-check"><input type="checkbox" role="switch" class="st-switch" disabled /> Disabled</label>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Segmented filters (category)</p>
+                        <div class="st-segmented" role="group" aria-label="Category" id="sg-seg">
+                            <button class="st-segmented__item" aria-pressed="true">All</button>
+                            <button class="st-segmented__item" aria-pressed="false"><svg class="i"><use href="#i-link" /></svg>Links</button>
+                            <button class="st-segmented__item" aria-pressed="false"><svg class="i"><use href="#i-image" /></svg>Images</button>
+                            <button class="st-segmented__item" aria-pressed="false"><svg class="i"><use href="#i-file" /></svg>Articles</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 02/03 NAV -->
+                <section class="st-panel sg-section sg-span-2" id="nav">
+                    <h2><span class="sg-n">08</span> Navigation<span class="sg-sub">Desktop sidebar (≥ lg), mobile top bar + floating bottom bar.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-cols-2 sg-cols" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: start">
+                            <div class="sg-item" style="display: grid; gap: 10px">
+                                <p class="sg-label">Desktop sidebar</p>
+                                <aside class="st-sidebar sg-static-sidebar">
+                                    <div>
+                                        <span class="st-brand"><svg class="st-brand__mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M16 3.5 29 10l-13 6.5L3 10 16 3.5Z" /><path d="m3 16 13 6.5L29 16" /><path d="m3 22 13 6.5L29 22" /></svg><span class="st-brand__word">Stash</span></span>
+                                        <p class="st-brand__slogan">Good finds,<br /><em>kept close.</em></p>
+                                    </div>
+                                    <ul class="st-nav">
+                                        <li><a class="st-nav__item" aria-current="page" href="#nav" onclick="return false"><svg class="i"><use href="#i-layers" /></svg><span class="st-nav__label">All saved</span><span class="st-nav__count">128</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-bookmark" /></svg><span class="st-nav__label">Bookmarks</span><span class="st-nav__count">56</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-image" /></svg><span class="st-nav__label">Screenshots</span><span class="st-nav__count">24</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-file" /></svg><span class="st-nav__label">Read later</span><span class="st-nav__count">32</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-folder" /></svg><span class="st-nav__label">Projects</span><span class="st-nav__count">6</span></a></li>
+                                        <li class="st-nav__separator" role="separator"></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-tag" /></svg><span class="st-nav__label">Tags</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-archive" /></svg><span class="st-nav__label">Archive</span></a></li>
+                                        <li><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-settings" /></svg><span class="st-nav__label">Settings</span></a></li>
+                                    </ul>
+                                </aside>
+                            </div>
+                            <div style="display: grid; gap: 16px">
+                                <p class="sg-label">Nav item states</p>
+                                <div class="sg-nav-state"><p class="sg-label">Default (dark)</p><a class="st-nav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-bookmark" /></svg><span class="st-nav__label">Bookmarks</span></a></div>
+                                <div class="sg-nav-state"><p class="sg-label">Hover (dark)</p><a class="st-nav__item" style="background: var(--st-ink-2)" href="#nav" onclick="return false"><svg class="i"><use href="#i-bookmark" /></svg><span class="st-nav__label">Bookmarks</span></a></div>
+                                <div class="sg-nav-state"><p class="sg-label">Selected</p><a class="st-nav__item" aria-current="page" href="#nav" onclick="return false"><svg class="i"><use href="#i-layers" /></svg><span class="st-nav__label">All saved</span><span class="st-nav__count">128</span></a></div>
+                                <p class="sg-label">Light nav item</p>
+                                <a class="st-nav-light__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-bookmark" /></svg>Bookmarks</a>
+                                <a class="st-nav-light__item" aria-current="page" href="#nav" onclick="return false"><svg class="i"><use href="#i-layers" /></svg>All saved</a>
+                            </div>
+                            <div style="display: grid; gap: 16px">
+                                <p class="sg-label">Top bar (mobile)</p>
+                                <div class="sg-device">
+                                    <div class="st-topbar">
+                                        <span class="st-brand st-brand--sm"><svg class="st-brand__mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M16 3.5 29 10l-13 6.5L3 10 16 3.5Z" /><path d="m3 16 13 6.5L29 16" /><path d="m3 22 13 6.5L29 22" /></svg><span class="st-brand__word">Stash</span></span>
+                                        <span style="flex: 1"></span>
+                                        <button class="st-btn st-btn--secondary st-btn--icon st-btn--sm" aria-label="Search"><svg class="i"><use href="#i-search" /></svg></button>
+                                        <button class="st-btn st-btn--primary st-btn--sm"><svg class="i"><use href="#i-plus" /></svg>Save</button>
+                                    </div>
+                                </div>
+                                <p class="sg-label">Bottom bar (mobile)</p>
+                                <div class="sg-device">
+                                    <nav class="st-bottomnav" aria-label="Primary">
+                                        <a class="st-bottomnav__item" aria-current="page" href="#nav" onclick="return false"><svg class="i"><use href="#i-layers" /></svg><span>All saved</span></a>
+                                        <a class="st-bottomnav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-bookmark" /></svg><span>Bookmarks</span></a>
+                                        <a class="st-bottomnav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-image" /></svg><span>Screenshots</span></a>
+                                        <a class="st-bottomnav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-file" /></svg><span>Read later</span></a>
+                                        <a class="st-bottomnav__item" href="#nav" onclick="return false"><svg class="i"><use href="#i-folder" /></svg><span>Projects</span></a>
+                                    </nav>
+                                </div>
+                                <p class="sg-cap">In the app both bars are <code>position: fixed/sticky</code>; here they are rendered static so you can inspect them.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <h2 class="sg-sheet-title"><span>SHEET 02</span> Content &amp; Feedback</h2>
+
+            <div class="sg-grid">
+                <!-- 01 CARDS -->
+                <section class="st-panel sg-section sg-span-3" id="cards">
+                    <h2><span class="sg-n">09</span> Resource card states<span class="sg-sub">Cards and key states for content items.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-cols sg-cols-3" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 20px">
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <article class="st-card st-card--interactive">
+                                    <div class="st-card__media"><div class="st-card__fallback"><span class="st-card__fallback-host">Flow</span></div></div>
+                                    <div class="st-card__body">
+                                        <h3 class="st-card__title">Checkout flow reference</h3>
+                                        <a class="st-card__host" href="#cards" onclick="return false"><span>flow.design</span><svg class="i" style="width: 14px; height: 14px"><use href="#i-external" /></svg></a>
+                                        <div class="st-tags"><span class="st-tag">UI/UX</span><span class="st-tag st-tag--orange">Inspiration</span></div>
+                                        <div class="st-card__meta"><span>2 days ago</span></div>
+                                    </div>
+                                </article>
+                                <p class="sg-cap"><b>Default</b>: shadow 4px 4px</p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <article class="st-card st-card--interactive sg-f-hover">
+                                    <div class="st-card__media"><div class="st-card__fallback"><span class="st-card__fallback-host">Hover</span></div></div>
+                                    <div class="st-card__body">
+                                        <h3 class="st-card__title">Checkout flow reference</h3>
+                                        <a class="st-card__host" href="#cards" onclick="return false"><span>flow.design</span></a>
+                                        <div class="st-tags"><span class="st-tag">UI/UX</span><span class="st-tag st-tag--orange">Inspiration</span></div>
+                                        <div class="st-card__meta"><span>2 days ago</span></div>
+                                    </div>
+                                </article>
+                                <p class="sg-cap"><b>Hover</b>: pops up-left, shadow stays anchored</p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <article class="st-card st-card--selected">
+                                    <div class="st-card__overlay st-card__overlay--tl"><span class="st-card__select"><input type="checkbox" class="st-checkbox" checked aria-label="Select" /></span></div>
+                                    <div class="st-card__media"><div class="st-card__fallback"><span class="st-card__fallback-host">Selected</span></div></div>
+                                    <div class="st-card__body">
+                                        <h3 class="st-card__title">Checkout flow reference</h3>
+                                        <a class="st-card__host" href="#cards" onclick="return false"><span>flow.design</span></a>
+                                        <div class="st-card__meta"><span>2 days ago</span></div>
+                                    </div>
+                                </article>
+                                <p class="sg-cap"><b>Selected</b>: yellow border + check</p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <article class="st-card st-card--loading" aria-busy="true">
+                                    <div class="st-card__media"><div class="st-skeleton" style="width: 100%; height: 100%; border-radius: 0"></div></div>
+                                    <div class="st-card__body sg-skel" style="padding: 12px 16px">
+                                        <div class="st-skeleton" style="width: 80%"></div>
+                                        <div class="st-skeleton" style="width: 55%"></div>
+                                        <div class="st-skeleton" style="width: 35%"></div>
+                                    </div>
+                                </article>
+                                <p class="sg-cap"><b>Loading</b>: skeleton</p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <article class="st-card">
+                                    <div class="st-card__media"><div class="st-card__fallback"><svg class="i" style="width: 32px; height: 32px"><use href="#i-image" /></svg><span class="st-card__fallback-host">No preview</span></div></div>
+                                    <div class="st-card__body">
+                                        <h3 class="st-card__title">Missing preview</h3>
+                                        <div class="st-card__meta"><span>5 days ago</span></div>
+                                    </div>
+                                </article>
+                                <p class="sg-cap"><b>Missing preview</b>: fallback</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 02 TABLE -->
+                <section class="st-panel sg-section sg-span-2" id="table">
+                    <h2><span class="sg-n">10</span> Table<span class="sg-sub">Selection, sorting, tags and actions. Scrolls horizontally on narrow screens.</span></h2>
+                    <div class="sg-body">
+                        <div class="st-table-wrap">
+                            <table class="st-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 44px"><input type="checkbox" class="st-checkbox" aria-label="Select all" /></th>
+                                        <th>Title</th><th>Type</th><th>Tags</th><th>Updated ↓</th><th><span class="st-sr-only">Actions</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><input type="checkbox" class="st-checkbox" aria-label="Select" /></td><td><b>Checkout flow</b></td><td>Link</td><td><span class="st-tags"><span class="st-tag">UI/UX</span><span class="st-tag st-tag--orange">Inspiration</span></span></td><td>2 days ago</td><td><button class="st-icon-btn" aria-label="More"><svg class="i"><use href="#i-more" /></svg></button></td></tr>
+                                    <tr><td><input type="checkbox" class="st-checkbox" aria-label="Select" /></td><td><b>Focus habits</b></td><td>Article</td><td><span class="st-tags"><span class="st-tag">Productivity</span><span class="st-tag st-tag--orange">Read later</span></span></td><td>3 days ago</td><td><button class="st-icon-btn" aria-label="More"><svg class="i"><use href="#i-more" /></svg></button></td></tr>
+                                    <tr class="st-table__row--selected"><td><input type="checkbox" class="st-checkbox" checked aria-label="Select" /></td><td><b>Brand assets</b></td><td>Image</td><td><span class="st-tags"><span class="st-tag">Project</span><span class="st-tag st-tag--orange">Branding</span></span></td><td>5 days ago</td><td><button class="st-icon-btn" aria-label="More"><svg class="i"><use href="#i-more" /></svg></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="st-pagination" role="navigation" aria-label="Pagination" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+                            <select class="st-select st-input--sm" style="width: auto" aria-label="Per page"><option>25 / page</option><option>50 / page</option></select>
+                            <span style="flex: 1"></span>
+                            <a class="st-pagination__page" href="#table" onclick="return false" aria-label="Previous"><svg class="i"><use href="#i-chevron-left" /></svg></a>
+                            <a class="st-pagination__page" href="#table" onclick="return false" aria-current="page">1</a>
+                            <a class="st-pagination__page" href="#table" onclick="return false">2</a>
+                            <a class="st-pagination__page" href="#table" onclick="return false">3</a>
+                            <a class="st-pagination__page" href="#table" onclick="return false" aria-label="Next"><svg class="i"><use href="#i-chevron-right" /></svg></a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 03 ALERTS / 04 TOASTS -->
+                <section class="st-panel sg-section" id="alerts">
+                    <h2><span class="sg-n">11</span> Alerts &amp; toasts</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Alerts</p>
+                        <div class="st-alert" role="status"><svg class="i st-alert__icon"><use href="#i-circle-check" /></svg><div class="st-alert__content"><p class="st-alert__title">Resource added</p><p class="st-alert__body">The resource was saved to your stash.</p></div><button class="st-icon-btn" style="width: 32px; height: 32px; margin: -6px -8px 0 0" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
+                        <div class="st-alert st-alert--info"><svg class="i st-alert__icon"><use href="#i-info" /></svg><div class="st-alert__content"><p class="st-alert__title">Metadata is loading</p><p class="st-alert__body">Fetching title, image, and description…</p></div></div>
+                        <div class="st-alert st-alert--warning"><svg class="i st-alert__icon"><use href="#i-alert" /></svg><div class="st-alert__content"><p class="st-alert__title">Preview unavailable</p><p class="st-alert__body">We couldn't load a preview for this resource.</p></div></div>
+                        <div class="st-alert st-alert--error" role="alert"><svg class="i st-alert__icon"><use href="#i-circle-x" /></svg><div class="st-alert__content"><p class="st-alert__title">Upload failed</p><p class="st-alert__body">The file could not be uploaded. <button class="st-alert__action">Retry</button></p></div></div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Toasts (transient)</p>
+                        <div class="st-toast" role="status"><svg class="i st-toast__icon"><use href="#i-circle-check" /></svg><span class="st-toast__message">Resource saved</span><button class="st-toast__action">Undo</button><button class="st-toast__close" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
+                        <div class="st-toast st-toast--error" role="alert"><svg class="i st-toast__icon"><use href="#i-circle-x" /></svg><span class="st-toast__message">Could not save</span><button class="st-toast__action">Retry</button><button class="st-toast__close" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
+                        <div class="st-toast st-toast--info"><svg class="i st-toast__icon"><use href="#i-info" /></svg><span class="st-toast__message">Syncing…</span></div>
+                        <div class="st-toast st-toast--warning"><svg class="i st-toast__icon"><use href="#i-alert" /></svg><span class="st-toast__message">Offline</span></div>
+                    </div>
+                </section>
+
+                <!-- 05 SAVE MODAL + CONFIRM -->
+                <section class="st-panel sg-section" id="modal">
+                    <h2><span class="sg-n">12</span> Dialogs<span class="sg-sub">Save-resource modal and confirmation. Shown static inside a dimmed overlay.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-dialog-wrap">
+                            <div class="st-dialog" role="dialog" aria-label="Save a resource">
+                                <div class="st-dialog__header"><h3 class="st-dialog__title">Save a resource</h3><button class="st-icon-btn" aria-label="Close"><svg class="i"><use href="#i-x" /></svg></button></div>
+                                <div class="st-dialog__body" style="display: grid; gap: 14px">
+                                    <div class="st-segmented" role="group" aria-label="Kind" style="width: 100%">
+                                        <button class="st-segmented__item" aria-pressed="true" style="flex: 1"><svg class="i"><use href="#i-link" /></svg>Link</button>
+                                        <button class="st-segmented__item" aria-pressed="false" style="flex: 1"><svg class="i"><use href="#i-upload" /></svg>Upload image</button>
+                                    </div>
+                                    <div class="st-field"><label class="st-field__label" for="m1">URL</label><input id="m1" class="st-input" value="https://flow.design/checkout-flow" /></div>
+                                    <div class="st-field"><label class="st-field__label" for="m2">Title</label><input id="m2" class="st-input" value="Checkout flow reference" /></div>
+                                    <div class="st-field"><span class="st-field__label">Tags</span><div class="st-tags"><span class="st-tag st-tag--orange"><span>UI/UX</span><button class="st-tag__remove" aria-label="Remove"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span><span class="st-tag st-tag--orange"><span>Inspiration</span><button class="st-tag__remove" aria-label="Remove"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span></div></div>
+                                    <div class="st-field"><label class="st-field__label" for="m3">Project</label><select id="m3" class="st-select"><option>Website Redesign</option></select></div>
+                                </div>
+                                <div class="st-dialog__footer"><button class="st-btn st-btn--secondary">Cancel</button><button class="st-btn st-btn--primary">Save</button></div>
+                            </div>
+                        </div>
+                        <div class="sg-dialog-wrap">
+                            <div class="st-dialog st-dialog--sm" role="alertdialog" aria-label="Delete resource?">
+                                <div class="st-dialog__header"><h3 class="st-dialog__title">Delete resource?</h3><button class="st-icon-btn" aria-label="Close"><svg class="i"><use href="#i-x" /></svg></button></div>
+                                <p class="st-dialog__description">This will remove the resource from your stash. This action can't be undone.</p>
+                                <div class="st-dialog__footer"><button class="st-btn st-btn--secondary">Cancel</button><button class="st-btn st-btn--danger-solid">Delete</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 06 FILTER PANEL -->
+                <section class="st-panel sg-section" id="filters">
+                    <h2><span class="sg-n">13</span> Custom filter panel<span class="sg-sub">Filter by type, tags, project and read status.</span></h2>
+                    <div class="sg-body">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800"><svg class="i"><use href="#i-sliders" /></svg>Filters</div>
+                        <div class="sg-cols sg-cols-2" style="gap: 16px">
+                            <div class="st-stack">
+                                <p class="sg-label">Resource type</p>
+                                <label class="st-check"><input type="checkbox" class="st-checkbox" checked /> Link</label>
+                                <label class="st-check"><input type="checkbox" class="st-checkbox" /> Article</label>
+                                <label class="st-check"><input type="checkbox" class="st-checkbox" /> Image</label>
+                            </div>
+                            <div class="st-stack">
+                                <p class="sg-label">Tags</p>
+                                <div class="st-tags"><span class="st-tag st-tag--orange"><span>UI/UX</span><button class="st-tag__remove" aria-label="Remove"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span><span class="st-tag st-tag--orange"><span>Inspiration</span><button class="st-tag__remove" aria-label="Remove"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span></div>
+                            </div>
+                            <div class="st-field"><label class="st-field__label" for="f1">Project</label><select id="f1" class="st-select"><option>All projects</option></select></div>
+                            <div class="st-field"><label class="st-field__label" for="f2">Read status</label><select id="f2" class="st-select"><option>All resources</option></select></div>
+                        </div>
+                        <div class="sg-row" style="justify-content: flex-end">
+                            <button class="st-btn st-btn--secondary">Clear filters</button>
+                            <button class="st-btn st-btn--primary">Apply filters</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 07 MENUS -->
+                <section class="st-panel sg-section" id="menus">
+                    <h2><span class="sg-n">14</span> Menus &amp; tooltip</h2>
+                    <div class="sg-body sg-menu-demo">
+                        <div class="sg-row">
+                            <div class="sg-item sg-grow">
+                                <div class="st-menu" role="menu">
+                                    <button class="st-menu__item" role="menuitem"><svg class="i"><use href="#i-external" /></svg>Open original</button>
+                                    <button class="st-menu__item" role="menuitem"><svg class="i"><use href="#i-pencil" /></svg>Edit details</button>
+                                    <button class="st-menu__item" role="menuitem" data-highlighted><svg class="i"><use href="#i-check" /></svg>Mark as read</button>
+                                    <button class="st-menu__item" role="menuitem"><svg class="i"><use href="#i-folder" /></svg>Move to project</button>
+                                    <button class="st-menu__item" role="menuitem"><svg class="i"><use href="#i-archive" /></svg>Archive</button>
+                                    <div class="st-menu__separator" role="separator"></div>
+                                    <button class="st-menu__item st-menu__item--danger" role="menuitem"><svg class="i"><use href="#i-trash" /></svg>Delete</button>
+                                </div>
+                                <p class="sg-cap">Item context menu (with hover)</p>
+                            </div>
+                            <div class="sg-item">
+                                <div class="st-menu" role="menu" style="min-width: 150px">
+                                    <button class="st-menu__item" role="menuitem"><svg class="i"><use href="#i-pencil" /></svg>Edit</button>
+                                    <button class="st-menu__item st-menu__item--danger" role="menuitem"><svg class="i"><use href="#i-trash" /></svg>Delete</button>
+                                </div>
+                                <p class="sg-cap">Overflow menu</p>
+                            </div>
+                        </div>
+                        <div class="sg-tip-wrap">
+                            <div class="st-tooltip" role="tooltip">Archive resource</div>
+                            <p class="sg-cap">Tooltip (on hover)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 08 EMPTY & ERROR -->
+                <section class="st-panel sg-section sg-span-2" id="states">
+                    <h2><span class="sg-n">15</span> Empty &amp; error states<span class="sg-sub">Empty content, no results, upload progress and errors.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-cols sg-cols-3" style="gap: 20px">
+                            <div class="st-empty"><svg class="i st-empty__icon"><use href="#i-layers" /></svg><h3 class="st-empty__title">Your stash starts here</h3><p class="st-empty__body">Save links, images, and articles to keep them in one place.</p><button class="st-btn st-btn--primary st-btn--sm">Save resource</button><p class="sg-cap">Empty library</p></div>
+                            <div class="st-empty"><svg class="i st-empty__icon"><use href="#i-search" /></svg><h3 class="st-empty__title">No results</h3><p class="st-empty__body">No resources match your filters.</p><button class="st-btn st-btn--secondary st-btn--sm">Clear filters</button><p class="sg-cap">No results</p></div>
+                            <div style="display: grid; gap: 10px; align-content: center">
+                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800"><svg class="i"><use href="#i-upload-cloud" /></svg><span style="flex: 1">Uploading image…</span><span class="st-meta">65%</span></div>
+                                <div class="st-progress" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading"><div class="st-progress__bar" style="width: 65%"></div></div>
+                                <p class="sg-cap">Upload progress (65%)</p>
+                            </div>
+                            <div class="st-empty"><svg class="i st-empty__icon" style="color: var(--st-danger)"><use href="#i-circle-x" /></svg><h3 class="st-empty__title">Upload failed</h3><p class="st-empty__body">The file could not be uploaded.</p><button class="st-btn st-btn--primary st-btn--sm">Retry</button><p class="sg-cap">Upload error (with retry)</p></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 09 OTHER -->
+                <section class="st-panel sg-section" id="other">
+                    <h2><span class="sg-n">16</span> Other components</h2>
+                    <div class="sg-body">
+                        <p class="sg-label">Drag-and-drop upload area</p>
+                        <div class="sg-cols sg-cols-2" style="gap: 12px">
+                            <div class="st-dropzone"><svg class="i"><use href="#i-upload-cloud" /></svg><p class="st-dropzone__title">Drop an image here</p><p class="st-dropzone__hint">or click to browse</p></div>
+                            <div class="st-dropzone st-dropzone--active"><svg class="i"><use href="#i-upload-cloud" /></svg><p class="st-dropzone__title">Drop to upload</p><p class="st-dropzone__hint">Drag over (active)</p></div>
+                            <div class="st-dropzone st-dropzone--invalid"><svg class="i"><use href="#i-circle-x" /></svg><p class="st-dropzone__title">Invalid file type</p><p class="st-dropzone__hint">Use JPG, PNG, or GIF.</p></div>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Tabs</p>
+                        <div class="st-tabs" role="tablist" id="sg-tabs">
+                            <button class="st-tab" role="tab" aria-selected="false">Overview</button>
+                            <button class="st-tab" role="tab" aria-selected="true">Resources</button>
+                            <button class="st-tab" role="tab" aria-selected="false">Notes</button>
+                        </div>
+                        <p class="sg-label">Breadcrumb</p>
+                        <nav class="st-breadcrumb" aria-label="Breadcrumb"><svg class="i"><use href="#i-folder" /></svg><a class="st-link st-link--plain" href="#other" onclick="return false">Projects</a><span class="st-breadcrumb__sep">/</span><span>Website Redesign</span></nav>
+                        <p class="sg-label">Misc</p>
+                        <div class="sg-row" style="align-items: center"><span class="st-spinner" role="status" aria-label="Loading"></span><span class="st-kbd">⌘ K</span><code class="st-code">st-btn</code></div>
+                        <p class="sg-cap"><b>Interactions:</b> hover lifts · press compresses · keyboard focus stays visible · static content stays flat.</p>
+                    </div>
+                </section>
+
+                <!-- TOKENS / LEGEND -->
+                <section class="st-panel sg-section sg-span-3" id="tokens">
+                    <h2><span class="sg-n">17</span> Visual legend &amp; tokens<span class="sg-sub">What to copy when you reuse this theme.</span></h2>
+                    <div class="sg-body">
+                        <div class="sg-legend">
+                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-demo-box" style="border-radius: 12px"></div><p class="sg-cap"><b>Border</b> 2px on all controls · <code>--st-border</code></p></div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <div class="sg-row"><div class="sg-demo-box" style="border-radius: 12px"></div><div class="sg-demo-box" style="border-radius: 20px"></div></div>
+                                <p class="sg-cap"><b>Radius</b> 12px controls · 20px cards · <code>--st-radius</code> / <code>--st-radius-card</code></p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <div class="sg-row" style="gap: 20px"><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow-sm)"></div><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow)"></div><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow-hover)"></div></div>
+                                <p class="sg-cap"><b>Hard shadow</b> 2 · 4 · 6px offset, 0 blur, ink</p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px">
+                                <div class="sg-space"><i style="width: 4px; height: 4px"></i><i style="width: 8px; height: 8px"></i><i style="width: 12px; height: 12px"></i><i style="width: 16px; height: 16px"></i><i style="width: 24px; height: 24px"></i><i style="width: 32px; height: 32px"></i><i style="width: 48px; height: 48px"></i></div>
+                                <p class="sg-cap"><b>Spacing</b> 4 · 8 · 12 · 16 · 24 · 32 · 48 · <code>--st-space-1…7</code></p>
+                            </div>
+                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-touch"></div><p class="sg-cap"><b>Touch target</b> 44 × 44px minimum · <code>--st-touch</code></p></div>
+                        </div>
+                        <hr class="sg-hr" />
+                        <p class="sg-label">Reuse in another project</p>
+                        <pre class="sg-code"><code>&lt;link rel="stylesheet" href="/fonts/nunito-sans.css" /&gt;
+&lt;link rel="stylesheet" href="/css/stash.css" /&gt;
+
+&lt;body class="st-body"&gt;
+  &lt;button class="st-btn st-btn--primary"&gt;+ Save&lt;/button&gt;
+&lt;/body&gt;
+
+/* re-theme: override tokens only */
+:root { --st-orange: #ff5f1f; --st-orange-text: #b53c0c; }</code></pre>
+                        <p class="sg-cap">Everything is namespaced <code>st-</code>; base element styles only apply inside <code>.st-body</code>. See <code>docs/MASTER_CSS.md</code> for the full class and token reference.</p>
+                    </div>
                 </section>
             </div>
         </main>
+
+        <script>
+            (function () {
+                // live viewport width readout (so you can verify breakpoints)
+                var el = document.getElementById('sg-width');
+                function w() { el.textContent = window.innerWidth + ' px'; }
+                w(); window.addEventListener('resize', w);
+                // demo interactivity: segmented + tabs + removable tags
+                var seg = document.getElementById('sg-seg');
+                seg.addEventListener('click', function (e) {
+                    var b = e.target.closest('.st-segmented__item'); if (!b) return;
+                    seg.querySelectorAll('.st-segmented__item').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+                });
+                var tabs = document.getElementById('sg-tabs');
+                tabs.addEventListener('click', function (e) {
+                    var b = e.target.closest('.st-tab'); if (!b) return;
+                    tabs.querySelectorAll('.st-tab').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+                });
+            })();
+        </script>
     </body>
 </html>

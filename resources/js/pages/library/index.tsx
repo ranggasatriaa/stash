@@ -18,6 +18,7 @@ import type { FilterDraft } from '@/components/stash/filter-panel';
 import { FilterPanel } from '@/components/stash/filter-panel';
 import { StashDialog } from '@/components/stash/overlay';
 import { ResourceCard } from '@/components/stash/resource-card';
+import { useResourceContextMenu } from '@/components/stash/resource-context-menu';
 import { ResourceDetailPanel } from '@/components/stash/resource-detail';
 import { ResourceTable } from '@/components/stash/resource-table';
 import { useSave } from '@/components/stash/save-context';
@@ -337,6 +338,8 @@ export default function LibraryIndex() {
             },
         );
     };
+
+    const ctxMenu = useResourceContextMenu((r) => openResource(r));
 
     const toggle = (id: string) =>
         setSelection((s) => {
@@ -678,6 +681,7 @@ export default function LibraryIndex() {
                     selected={selection}
                     onOpen={(r, e) => openResource(r, e)}
                     onToggle={toggle}
+                    onContextMenu={ctxMenu.openMenu}
                     onToggleAll={(checked) =>
                         setSelection(
                             checked
@@ -697,6 +701,7 @@ export default function LibraryIndex() {
                             selectable
                             onOpen={(e) => openResource(r, e)}
                             onToggleSelect={() => toggle(r.id)}
+                            onContextMenu={(e) => ctxMenu.openMenu(r, e)}
                         />
                     ))}
                 </div>
@@ -709,6 +714,8 @@ export default function LibraryIndex() {
                     onPerPage={setPerPage}
                 />
             )}
+
+            {ctxMenu.element}
 
             {selection.size > 0 && (
                 <BulkBar

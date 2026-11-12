@@ -23,13 +23,13 @@ final class HtmlMetadataParser
     public const MAX_DESCRIPTION = 2000;
 
     /**
-     * @return array{title: ?string, description: ?string, og_title: ?string, og_description: ?string, og_image: ?string, site_name: ?string, favicon: ?string, canonical: ?string}
+     * @return array{title: ?string, description: ?string, og_title: ?string, og_description: ?string, og_image: ?string, image_candidates: list<string>, site_name: ?string, favicon: ?string, canonical: ?string}
      */
     public function parse(string $html, string $baseUrl, ?string $charset = null): array
     {
         $empty = [
             'title' => null, 'description' => null, 'og_title' => null, 'og_description' => null,
-            'og_image' => null, 'site_name' => null, 'favicon' => null, 'canonical' => null,
+            'og_image' => null, 'image_candidates' => [], 'site_name' => null, 'favicon' => null, 'canonical' => null,
         ];
 
         $html = self::toUtf8($html, $charset);
@@ -90,12 +90,36 @@ final class HtmlMetadataParser
 
         $canonical = $this->attr($xpath, '//link[@rel="canonical"][@href]', 'href');
 
+        // Preview image candidates, best first: Open Graph / Twitter cards,
+        // video poster images, then <link rel="image_src"> and itemprop images.
+        $rawImages = [
+            $meta['og:image:secure_url'] ?? null,
+            $meta['og:image'] ?? null,
+            $meta['og:image:url'] ?? null,
+            $meta['twitter:image'] ?? null,
+            $meta['twitter:image:src'] ?? null,
+            $meta['og:video:image'] ?? null,
+            $meta['thumbnail'] ?? null,
+            $this->attr($xpath, '//link[@rel="image_src"][@href]', 'href'),
+            $this->attr($xpath, '//meta[@itemprop="thumbnailUrl"][@content]', 'content'),
+            $this->attr($xpath, '//link[@itemprop="thumbnailUrl"][@href]', 'href'),
+            $this->attr($xpath, '//video[@poster]', 'poster'),
+        ];
+        $imageCandidates = [];
+        foreach ($rawImages as $raw) {
+            $resolved = $this->resolve($base, $raw);
+            if ($resolved !== null && ! in_array($resolved, $imageCandidates, true)) {
+                $imageCandidates[] = $resolved;
+            }
+        }
+
         return [
             'title' => $this->clean($title, self::MAX_TITLE),
             'description' => $this->clean($meta['description'] ?? null, self::MAX_DESCRIPTION),
             'og_title' => $this->clean($meta['og:title'] ?? $meta['twitter:title'] ?? null, self::MAX_TITLE),
             'og_description' => $this->clean($meta['og:description'] ?? $meta['twitter:description'] ?? null, self::MAX_DESCRIPTION),
-            'og_image' => $this->resolve($base, $meta['og:image:secure_url'] ?? $meta['og:image'] ?? $meta['og:image:url'] ?? $meta['twitter:image'] ?? null),
+            'og_image' => $imageCandidates[0] ?? null,
+            'image_candidates' => $imageCandidates,
             'site_name' => $this->clean($meta['og:site_name'] ?? $meta['application-name'] ?? null, 120),
             'favicon' => $favicon ?? $this->resolve($base, '/favicon.ico'),
             'canonical' => $canonical ? $this->resolve($base, $canonical) : null,

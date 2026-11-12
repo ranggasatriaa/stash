@@ -7,10 +7,17 @@ enum ResourceType: string
     case Link = 'link';
     case Image = 'image';
     case Article = 'article';
+    case Video = 'video';
 
     public function requiresUrl(): bool
     {
-        return $this !== self::Image;
+        return ! $this->isUpload();
+    }
+
+    /** Resources whose content is an uploaded file rather than a source URL. */
+    public function isUpload(): bool
+    {
+        return $this === self::Image || $this === self::Video;
     }
 
     /** @return list<string> */

@@ -18,7 +18,9 @@ export function ResourceTable({
     onOpen,
     onToggle,
     onToggleAll,
+    onContextMenu,
 }: {
+    onContextMenu?: (r: StashResource, e: MouseEvent<HTMLElement>) => void;
     resources: StashResource[];
     hrefFor: (r: StashResource) => string;
     selected: Set<string>;
@@ -66,7 +68,11 @@ export function ResourceTable({
                         const { Icon, label } = TYPE_META[r.type];
 
                         return (
-                            <tr key={r.id} aria-selected={selected.has(r.id)}>
+                            <tr
+                                key={r.id}
+                                aria-selected={selected.has(r.id)}
+                                onContextMenu={(e) => onContextMenu?.(r, e)}
+                            >
                                 <td>
                                     <input
                                         type="checkbox"

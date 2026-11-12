@@ -31,6 +31,12 @@ return [
         'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
     ],
 
+    'videos' => [
+        'max_bytes' => (int) env('STASH_VIDEO_MAX_BYTES', 200 * 1024 * 1024),
+        'allowed_mimes' => ['video/mp4', 'video/webm', 'video/quicktime'],
+        'poster_max_bytes' => 5 * 1024 * 1024,
+    ],
+
     'images' => [
         // gd (default, verified locally) or imagick (requires the PHP extension).
         'driver' => env('STASH_IMAGE_DRIVER', 'gd'),

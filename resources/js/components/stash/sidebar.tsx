@@ -332,13 +332,22 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function UserFooter() {
-    const user = usePage().props.auth?.user;
+    const { auth, app_version: version } = usePage().props;
+    const user = auth?.user;
 
     return (
         <div className="flex items-center gap-2 rounded-[12px] border-2 border-[#34363c] p-2">
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold">{user?.name}</p>
                 <p className="truncate text-xs text-[#b9bbc2]">{user?.email}</p>
+                {version && (
+                    <p
+                        className="truncate text-[11px] text-[#8b8d95]"
+                        title={`Version ${version}`}
+                    >
+                        {version}
+                    </p>
+                )}
             </div>
             <Link
                 href="/logout"

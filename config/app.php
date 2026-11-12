@@ -17,6 +17,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | Written by scripts/deploy-server.sh (`git describe --tags --always`)
+    | before config is cached: "v1.3.0" on a tagged release, "v1.3.0-4-gabc1234"
+    | on staging while ahead of the last tag, "dev" when the file is absent.
+    |
+    */
+
+    'version' => is_file($versionFile = storage_path('app/version.txt'))
+        ? (trim((string) file_get_contents($versionFile)) ?: 'dev')
+        : 'dev',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

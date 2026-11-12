@@ -7,8 +7,9 @@
  *   <link rel="stylesheet" href="stash.css">
  *   <body class="st-body"> ... <button class="st-btn st-btn--primary">Save</button>
  *
- * Font: Nunito Sans (variable). Load it yourself (e.g. @fontsource-variable/
- * nunito-sans or a self-hosted woff2); the stack falls back to system fonts.
+ * Fonts: Sora (titles) + Plus Jakarta Sans (body), both variable. Load them
+ * yourself (e.g. @fontsource-variable/sora and /plus-jakarta-sans or
+ * self-hosted woff2); the stacks fall back to system fonts.
  *
  * Structure
  *   1. Tokens (custom properties on :root, unlayered so they are always visible)
@@ -80,11 +81,14 @@
     --st-line: var(--st-ink);
     --st-sidebar: var(--st-ink);
 
-    /* Typography (reference: Nunito Sans) */
+    /* Typography (body: Plus Jakarta Sans, titles: Sora) */
     --st-font-sans:
-        'Nunito Sans Variable', 'Nunito Sans', ui-sans-serif, system-ui,
-        -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji';
+        'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif,
+        system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --st-font-heading:
+        'Sora Variable', 'Sora', 'Plus Jakarta Sans Variable', ui-sans-serif,
+        system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     --st-font-mono:
         ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono',
         monospace;
@@ -169,6 +173,29 @@
     .st-body ::selection {
         background: var(--st-yellow);
         color: var(--st-ink);
+    }
+
+    .st-h1,
+    .st-h2,
+    .st-h3,
+    .st-card__title,
+    .st-alert__title,
+    .st-dialog__title,
+    .st-dropzone__title,
+    .st-empty__title,
+    .st-nav__heading,
+    .st-section-title,
+    .st-markdown h1,
+    .st-markdown h2,
+    .st-markdown h3,
+    .st-markdown h4,
+    .st-body h1,
+    .st-body h2,
+    .st-body h3,
+    .st-body h4,
+    .st-body h5,
+    .st-body h6 {
+        font-family: var(--st-font-heading);
     }
 
     .st-h1 {

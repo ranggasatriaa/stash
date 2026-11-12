@@ -239,7 +239,10 @@ export function BulkBar({
                     </>
                 }
             >
-                <TagInput value={tags} onChange={setTags} id="bulk-tags" />
+                {/* Tall body leaves room for the suggestion dropdown above the input */}
+                <div className="flex min-h-[22rem] flex-col justify-end">
+                    <TagInput value={tags} onChange={setTags} id="bulk-tags" />
+                </div>
             </StashDialog>
 
             <StashDialog

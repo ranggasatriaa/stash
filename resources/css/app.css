@@ -4,15 +4,19 @@
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/nunito-sans/index.css';
+@import '@fontsource-variable/plus-jakarta-sans/index.css';
+@import '@fontsource-variable/sora/index.css';
 @import './stash.css';
 
 @source '../views';
 
 @theme {
     --font-sans:
-        'Nunito Sans Variable', 'Nunito Sans', ui-sans-serif, system-ui,
-        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+        'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif,
+        system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-heading:
+        'Sora Variable', 'Sora', 'Plus Jakarta Sans Variable', ui-sans-serif,
+        system-ui, sans-serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);

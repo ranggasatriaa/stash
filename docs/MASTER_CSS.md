@@ -13,9 +13,9 @@ dependency**, so you can drop it into any other website.
 
 ```html
 <!-- 1. Font (any of these) -->
-<link rel="stylesheet" href="/fonts/nunito-sans.css" />
+<link rel="stylesheet" href="/fonts/plus-jakarta-sans.css" />
 <!-- self-hosted woff2 -->
-<!-- or: npm i @fontsource-variable/nunito-sans && import '@fontsource-variable/nunito-sans' -->
+<!-- or: npm i @fontsource-variable/plus-jakarta-sans && import '@fontsource-variable/plus-jakarta-sans' -->
 
 <!-- 2. The master CSS -->
 <link rel="stylesheet" href="/css/stash.css" />

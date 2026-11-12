@@ -10,6 +10,7 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            app_version: string | null;
             auth: { user: StashUser };
             nav: NavData | null;
             ai: { enabled: boolean } | null;

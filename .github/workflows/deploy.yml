@@ -1,0 +1,118 @@
+name: deploy
+
+# Option B (docs/BRIEF-option-b-master-tags.md):
+#   push to master  -> staging  (skipped while STAGING_HOST is not set)
+#   push tag v*     -> live     (tag must point at a commit that is on master)
+#   run manually    -> live, for an existing tag (rollback / re-deploy)
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to deploy to live (e.g. v1.2.0)
+        required: true
+
+permissions:
+  contents: read
+
+# Never run two deploys of the same target at once; never cancel one mid-flight.
+concurrency:
+  group: deploy-${{ (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && 'live' || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Create a GitHub Environment named "live" with required reviewers to make
+    # a tag push wait for your approval before it deploys.
+    environment: ${{ (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && 'live' || 'staging' }}
+    env:
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      STAGING_HOST: ${{ secrets.STAGING_HOST }}
+      STAGING_PATH: ${{ secrets.STAGING_PATH }}
+      LIVE_HOST: ${{ secrets.LIVE_HOST }}
+      LIVE_PATH: ${{ secrets.LIVE_PATH }}
+    steps:
+      - name: Checkout (full history, to verify tags are on master)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Choose target
+        id: target
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            ref="${INPUT_TAG}"
+            git rev-parse --verify --quiet "refs/tags/${ref}^{commit}" >/dev/null \
+              || { echo "::error::tag ${ref} does not exist"; exit 1; }
+            target=live
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            ref="${GITHUB_REF_NAME}"
+            target=live
+          else
+            ref="origin/master"
+            target=staging
+          fi
+
+          if [[ "$target" == live ]]; then
+            host="$LIVE_HOST"; path="$LIVE_PATH"
+            # Live only ever runs a commit that is part of master's history.
+            git merge-base --is-ancestor "$(git rev-parse "refs/tags/${ref}^{commit}")" origin/master \
+              || { echo "::error::${ref} is not on master; refusing to deploy it to live"; exit 1; }
+          else
+            host="$STAGING_HOST"; path="$STAGING_PATH"
+          fi
+
+          if [[ -z "$host" || -z "$path" ]]; then
+            echo "::notice::No ${target} host configured; nothing to deploy."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          { echo "skip=false"; echo "target=$target"; echo "ref=$ref"; echo "host=$host"; echo "path=$path"; } >> "$GITHUB_OUTPUT"
+
+      - name: Prepare SSH
+        if: steps.target.outputs.skip != 'true'
+        env:
+          HOST: ${{ steps.target.outputs.host }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          if [[ -n "$SSH_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -T 10 "$HOST" > ~/.ssh/known_hosts   # trust-on-first-use; set SSH_KNOWN_HOSTS to pin
+          fi
+
+      - name: Deploy
+        if: steps.target.outputs.skip != 'true'
+        env:
+          HOST: ${{ steps.target.outputs.host }}
+          APP_PATH: ${{ steps.target.outputs.path }}
+          TARGET: ${{ steps.target.outputs.target }}
+          REF: ${{ steps.target.outputs.ref }}
+        run: |
+          # Run the deploy script from the ref being deployed, so a rollback
+          # uses the script that matched that release.
+          ssh -i ~/.ssh/id_deploy -o IdentitiesOnly=yes "${SSH_USER}@${HOST}" \
+            "set -euo pipefail; cd '${APP_PATH}'; git fetch --tags --force origin '+refs/heads/master:refs/remotes/origin/master'; \
+             git show '${REF}:scripts/deploy-server.sh' > /tmp/stash-deploy.sh; \
+             APP_DIR='${APP_PATH}' bash /tmp/stash-deploy.sh '${TARGET}' '${REF}'"
+
+      - name: Health check
+        if: steps.target.outputs.skip != 'true'
+        env:
+          HOST: ${{ steps.target.outputs.host }}
+          APP_PATH: ${{ steps.target.outputs.path }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -o IdentitiesOnly=yes "${SSH_USER}@${HOST}" \
+            "curl -fsS --retry 10 --retry-delay 3 --retry-connrefused -H 'Host: localhost' http://127.0.0.1/up >/dev/null && echo healthy && cat '${APP_PATH}/storage/app/version.txt'"

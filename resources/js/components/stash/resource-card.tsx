@@ -1,4 +1,4 @@
-import { ExternalLink, Play } from 'lucide-react';
+﻿import { ExternalLink, Play } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import {
     ArchivedBadge,
@@ -50,7 +50,7 @@ export function ResourcePreview({ resource }: { resource: StashResource }) {
                     {resource.processing.status === 'ready' ||
                     resource.processing.status === 'none'
                         ? 'No preview'
-                        : 'Preparing preview…'}
+                        : 'Preparing previewâ€¦'}
                 </span>
             )}
         </div>
@@ -95,7 +95,7 @@ export function ResourceCard({
                         className="pointer-events-none absolute inset-0 grid place-items-center"
                         aria-hidden="true"
                     >
-                        <span className="grid size-11 place-items-center rounded-full border-2 border-ink bg-white/95">
+                        <span className="grid size-11 place-items-center rounded-md border-2 border-ink bg-white/95">
                             <Play className="ml-0.5 size-5 fill-ink text-ink" />
                         </span>
                     </span>

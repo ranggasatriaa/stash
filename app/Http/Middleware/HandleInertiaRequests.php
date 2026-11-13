@@ -32,8 +32,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            // Only for signed-in users: no need to advertise the build to anonymous visitors.
-            'app_version' => $user ? config('app.version') : null,
+            'app_version' => config('app.version'),
             'auth' => [
                 'user' => $user ? [
                     'id' => $user->id,

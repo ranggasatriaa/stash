@@ -1,5 +1,5 @@
-/*!
- * Stash Master CSS — v1.0
+﻿/*!
+ * Stash Master CSS â€” v1.0
  * ---------------------------------------------------------------------------
  * Framework-agnostic design system for Stash ("Good finds, kept close.").
  * Plain CSS: no Tailwind or build step required. Reuse it on any site:
@@ -19,14 +19,14 @@
  *   their own later layers, so page-level overrides stay easy.
  *
  * Interaction language (from the UI reference):
- *   hover lifts · press compresses · keyboard focus stays visible ·
+ *   hover lifts Â· press compresses Â· keyboard focus stays visible Â·
  *   static content stays flat. 2px borders on all controls, 12px control
  *   radius, 20px card radius, hard offset shadows, 44px touch targets.
  *
  * Accessibility notes
  *   - Orange #FF7417 is a FILL colour (ink text on it = 6.4:1). For orange
  *     TEXT use --st-orange-text (#C2410C, 5.2:1 on white, 4.9:1 on ivory).
- *   - Focus ring uses --st-focus (#E35D00, ≥3:1 against ivory, white and ink).
+ *   - Focus ring uses --st-focus (#E35D00, â‰¥3:1 against ivory, white and ink).
  *   - Status never relies on colour alone: badges carry text/icons.
  *   - prefers-reduced-motion removes lifts, presses and animations.
  * ------------------------------------------------------------------------- */
@@ -58,7 +58,7 @@
     --st-ink-muted: #b9bbc2;
     --st-overlay: rgb(25 26 29 / 0.55);
 
-    /* Semantic status (text ≥ 4.5:1 on its own soft background) */
+    /* Semantic status (text â‰¥ 4.5:1 on its own soft background) */
     --st-success: #1d7a4a;
     --st-success-soft: #e4f6eb;
     --st-success-line: #2e9e62;
@@ -104,10 +104,10 @@
 
     /* Shape & depth */
     --st-border: 2px;
-    --st-radius-sm: 8px;
-    --st-radius: 12px; /* controls */
-    --st-radius-card: 20px; /* cards, panels */
-    --st-radius-pill: 999px;
+    --st-radius-sm: 4px;
+    --st-radius: 6px; /* controls */
+    --st-radius-card: 10px; /* cards, panels */
+    --st-radius-pill: 6px;
     --st-shadow: 4px 4px 0 var(--st-ink);
     /* neobrutalism motion: hover pops out, press pushes into the shadow */
     --st-shadow-hover: 8px 8px 0 var(--st-ink);
@@ -146,6 +146,10 @@
 
 /* 2. BASE ================================================================== */
 @layer st-base {
+    /* Root size: 1rem = 14px across the project */
+    html {
+        font-size: 87.5%;
+    }
     .st-body {
         margin: 0;
         min-height: 100dvh;
@@ -165,9 +169,15 @@
         box-sizing: border-box;
     }
 
+    /* One focus style everywhere: orange border + orange hard shadow, no outline */
     .st-body :focus-visible {
-        outline: 3px solid var(--st-focus);
-        outline-offset: 2px;
+        outline: none;
+        border-color: var(--st-orange) !important;
+        box-shadow: 4px 4px 0 var(--st-orange) !important;
+    }
+    .st-body .st-card__title a:focus-visible {
+        border-color: transparent !important;
+        box-shadow: none !important;
     }
 
     .st-body ::selection {
@@ -280,13 +290,13 @@
 
 /* 3. COMPONENTS ============================================================ */
 @layer st-components {
-    /* ---- Links (sheet 01 · 06) ---------------------------------------- */
+    /* ---- Links (sheet 01 Â· 06) ---------------------------------------- */
     .st-link {
         color: var(--st-orange-text);
         font-weight: 700;
         text-decoration: none;
         text-underline-offset: 3px;
-        border-radius: 4px;
+        border-radius: 2px;
     }
     .st-link:hover {
         color: var(--st-orange-text-hover);
@@ -300,7 +310,7 @@
         color: var(--st-orange-text);
     }
 
-    /* ---- Buttons (sheet 01 · 05) -------------------------------------- */
+    /* ---- Buttons (sheet 01 Â· 05) -------------------------------------- */
     .st-btn {
         --st-btn-bg: var(--st-surface);
         --st-btn-fg: var(--st-ink);
@@ -343,10 +353,6 @@
     .st-btn:active {
         transform: var(--st-press);
         box-shadow: var(--st-shadow-press);
-    }
-    .st-btn:focus-visible {
-        outline: 3px solid var(--st-focus);
-        outline-offset: 3px;
     }
     .st-btn:disabled,
     .st-btn[aria-disabled='true'] {
@@ -393,7 +399,6 @@
     .st-btn--danger {
         --st-btn-fg: var(--st-danger);
         --st-btn-line: var(--st-danger);
-        box-shadow: 4px 4px 0 var(--st-danger);
     }
     .st-btn--danger:hover {
         --st-btn-bg: var(--st-danger-soft);
@@ -459,7 +464,7 @@
         width: 100%;
     }
 
-    /* ---- Inputs (sheet 01 · 08) --------------------------------------- */
+    /* ---- Inputs (sheet 01 Â· 08) --------------------------------------- */
     .st-field {
         display: flex;
         flex-direction: column;
@@ -496,7 +501,7 @@
         background: var(--st-surface);
         color: var(--st-ink);
         font: inherit;
-        font-size: 1rem; /* 16px avoids iOS zoom */
+        font-size: 16px; /* must stay 16px (not rem) to avoid iOS zoom */
         line-height: 1.4;
         box-shadow: var(--st-shadow-sm);
         transition:
@@ -524,9 +529,9 @@
     .st-textarea:focus-visible,
     .st-select:focus-visible {
         outline: none;
-        border-color: var(--st-focus);
+        border-color: var(--st-orange);
         transform: translate(2px, 2px);
-        box-shadow: none;
+        box-shadow: 2px 2px 0 var(--st-orange);
     }
     .st-input[aria-invalid='true'],
     .st-textarea[aria-invalid='true'],
@@ -584,7 +589,7 @@
         display: none;
     }
 
-    /* ---- Selection controls (sheet 01 · 09) --------------------------- */
+    /* ---- Selection controls (sheet 01 Â· 09) --------------------------- */
     .st-check {
         display: inline-flex;
         align-items: center;
@@ -608,7 +613,7 @@
         transition: background-color var(--st-dur) var(--st-ease);
     }
     .st-checkbox {
-        border-radius: 6px;
+        border-radius: 3px;
     }
     .st-radio {
         border-radius: 50%;
@@ -637,11 +642,6 @@
         background-color: var(--st-disabled-bg);
         cursor: not-allowed;
     }
-    .st-checkbox:focus-visible,
-    .st-radio:focus-visible {
-        outline: 3px solid var(--st-focus);
-        outline-offset: 2px;
-    }
 
     .st-switch {
         position: relative;
@@ -664,7 +664,7 @@
         width: 20px;
         height: 20px;
         border: var(--st-border) solid var(--st-ink);
-        border-radius: 50%;
+        border-radius: 3px;
         background: var(--st-white);
         transition: transform var(--st-dur) var(--st-ease);
     }
@@ -725,7 +725,7 @@
         background: var(--st-yellow);
     }
 
-    /* ---- Tags & badges (sheet 01 · 07) -------------------------------- */
+    /* ---- Tags & badges (sheet 01 Â· 07) -------------------------------- */
     .st-tag {
         --st-tag-bg: var(--st-yellow);
         display: inline-flex;
@@ -794,7 +794,7 @@
         height: 18px;
         margin-right: -4px;
         border: 0;
-        border-radius: 4px;
+        border-radius: 2px;
         background: transparent;
         color: inherit;
         cursor: pointer;
@@ -815,7 +815,7 @@
         gap: 4px;
         min-height: 22px;
         padding: 1px 8px;
-        border-radius: 6px;
+        border-radius: 3px;
         background: var(--st-neutral-soft);
         color: var(--st-ink);
         font-size: var(--st-text-meta);
@@ -882,7 +882,7 @@
         width: 26px;
         height: 26px;
         border: 0;
-        border-radius: 50%;
+        border-radius: 3px;
         background: transparent;
         color: var(--st-ink);
         cursor: pointer;
@@ -924,7 +924,7 @@
         margin: var(--st-space-4) 0;
     }
 
-    /* ---- Resource card (sheet 02 · 01) -------------------------------- */
+    /* ---- Resource card (sheet 02 Â· 01) -------------------------------- */
     .st-card {
         position: relative;
         display: flex;
@@ -953,7 +953,8 @@
     }
     .st-card--interactive:has(:focus-visible) {
         transform: var(--st-lift);
-        box-shadow: var(--st-shadow-hover);
+        border-color: var(--st-orange);
+        box-shadow: 8px 8px 0 var(--st-orange);
     }
     .st-card:focus-within,
     .st-card :focus-visible:not(.st-checkbox) {
@@ -1115,7 +1116,7 @@
     .st-skeleton {
         position: relative;
         overflow: hidden;
-        border-radius: 8px;
+        border-radius: 4px;
         background: #ece6dc;
     }
     .st-skeleton::after {
@@ -1137,7 +1138,7 @@
         pointer-events: none;
     }
 
-    /* ---- Table (sheet 02 · 02) ---------------------------------------- */
+    /* ---- Table (sheet 02 Â· 02) ---------------------------------------- */
     .st-table-wrap {
         overflow-x: auto;
         border: var(--st-border) solid var(--st-ink);
@@ -1193,7 +1194,7 @@
         height: 40px;
         padding: 0 10px;
         border: var(--st-border) solid var(--st-ink);
-        border-radius: 10px;
+        border-radius: 5px;
         background: var(--st-surface);
         color: var(--st-ink);
         box-shadow: var(--st-shadow-sm);
@@ -1219,7 +1220,7 @@
         box-shadow: none;
     }
 
-    /* ---- Alerts & toasts (sheet 02 · 03, 04) -------------------------- */
+    /* ---- Alerts & toasts (sheet 02 Â· 03, 04) -------------------------- */
     .st-alert {
         --st-alert-bg: var(--st-success-soft);
         --st-alert-line: var(--st-success-line);
@@ -1308,7 +1309,7 @@
     .st-toast__action {
         padding: 6px 8px;
         border: 0;
-        border-radius: 8px;
+        border-radius: 4px;
         background: transparent;
         color: var(--st-success);
         font: inherit;
@@ -1326,7 +1327,7 @@
         width: 32px;
         height: 32px;
         border: 0;
-        border-radius: 8px;
+        border-radius: 4px;
         background: transparent;
         color: var(--st-ink);
         cursor: pointer;
@@ -1359,7 +1360,7 @@
         color: var(--st-warning);
     }
 
-    /* ---- Menus & tooltip (sheet 02 · 07) ------------------------------ */
+    /* ---- Menus & tooltip (sheet 02 Â· 07) ------------------------------ */
     .st-menu {
         min-width: 200px;
         padding: 6px;
@@ -1378,7 +1379,7 @@
         min-height: 40px;
         padding: 8px 10px;
         border: 0;
-        border-radius: 8px;
+        border-radius: 4px;
         background: transparent;
         color: inherit;
         font: inherit;
@@ -1428,7 +1429,7 @@
     .st-tooltip {
         max-width: 280px;
         padding: 6px 10px;
-        border-radius: 8px;
+        border-radius: 4px;
         background: var(--st-ink);
         color: var(--st-white);
         font-size: 0.8125rem;
@@ -1438,7 +1439,7 @@
         z-index: var(--st-z-toast);
     }
 
-    /* ---- Dialog & sheet (sheet 02 · 05, 09) --------------------------- */
+    /* ---- Dialog & sheet (sheet 02 Â· 05, 09) --------------------------- */
     .st-overlay {
         position: fixed;
         inset: 0;
@@ -1514,7 +1515,7 @@
         width: var(--st-touch);
         height: var(--st-touch);
         border: 0;
-        border-radius: 10px;
+        border-radius: 5px;
         background: transparent;
         color: inherit;
         cursor: pointer;
@@ -1590,7 +1591,7 @@
         border-top: 1.5px solid var(--st-line-soft);
     }
 
-    /* ---- Tabs & breadcrumb (sheet 02 · 09) ---------------------------- */
+    /* ---- Tabs & breadcrumb (sheet 02 Â· 09) ---------------------------- */
     .st-tabs {
         display: inline-flex;
         flex-wrap: wrap;
@@ -1650,7 +1651,7 @@
         color: var(--st-text-muted);
     }
 
-    /* ---- Drag & drop, progress, empty (sheet 02 · 08, 09) ------------- */
+    /* ---- Drag & drop, progress, empty (sheet 02 Â· 08, 09) ------------- */
     .st-dropzone {
         display: flex;
         flex-direction: column;
@@ -1755,7 +1756,7 @@
         min-width: 22px;
         padding: 1px 6px;
         border: 1.5px solid var(--st-ink);
-        border-radius: 6px;
+        border-radius: 3px;
         background: var(--st-white);
         font-family: var(--st-font-mono);
         font-size: 0.75rem;
@@ -1814,7 +1815,7 @@
         font-size: 1.375rem;
     }
 
-    /* ---- Navigation (sheet 01 · 02, 03) -------------------------------- */
+    /* ---- Navigation (sheet 01 Â· 02, 03) -------------------------------- */
     .st-sidebar {
         display: flex;
         flex-direction: column;
@@ -1878,8 +1879,7 @@
         background: var(--st-ink-2);
     }
     .st-nav__item:focus-visible {
-        outline: 3px solid var(--st-focus);
-        outline-offset: 0;
+        outline: none;
     }
     .st-nav__item[aria-current='page'],
     .st-nav__item--active {
@@ -1907,7 +1907,7 @@
         width: 10px;
         height: 10px;
         flex-shrink: 0;
-        border-radius: 3px;
+        border-radius: 2px;
         border: 1.5px solid currentColor;
     }
     .st-nav__separator {
@@ -1963,7 +1963,7 @@
         gap: 4px;
         padding: 6px;
         border: var(--st-border) solid var(--st-ink);
-        border-radius: 18px;
+        border-radius: 9px;
         background: var(--st-sidebar);
         box-shadow: 4px 4px 0 rgb(25 26 29 / 0.35);
     }
@@ -1977,7 +1977,7 @@
         min-height: 52px;
         padding: 4px 2px;
         border: var(--st-border) solid transparent;
-        border-radius: 12px;
+        border-radius: 6px;
         background: transparent;
         color: var(--st-white);
         font: inherit;
@@ -2091,7 +2091,7 @@
     }
     .st-markdown code {
         padding: 1px 5px;
-        border-radius: 5px;
+        border-radius: 3px;
         background: var(--st-ivory);
         border: 1px solid var(--st-line-soft);
         font-family: var(--st-font-mono);

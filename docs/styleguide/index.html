@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -55,7 +55,7 @@
                 margin-left: auto;
                 padding: 6px 12px;
                 border: 2px solid var(--st-ink);
-                border-radius: 999px;
+                border-radius: 6px;
                 background: var(--st-yellow);
                 font-size: 0.8125rem;
                 font-weight: 800;
@@ -82,7 +82,7 @@
                 flex: none;
                 padding: 6px 12px;
                 border: 2px solid var(--st-ink);
-                border-radius: 999px;
+                border-radius: 6px;
                 background: var(--st-white);
                 color: var(--st-ink);
                 font-size: 0.8125rem;
@@ -524,7 +524,7 @@
                     Stash / Style guide
                     <small>Live reference for <code>resources/css/stash.css</code>. Every demo is real <code>st-*</code> markup.</small>
                 </h1>
-                <span class="sg-width" id="sg-width" aria-live="off">— px</span>
+                <span class="sg-width" id="sg-width" aria-live="off">â€” px</span>
             </header>
 
             <nav class="sg-jump" aria-label="Sections">
@@ -583,12 +583,12 @@
                         <hr class="sg-hr" />
                         <p class="sg-label">Sora + Plus Jakarta Sans: implementation reference</p>
                         <div>
-                            <div class="sg-type"><span class="st-h1">Heading</span><span>32 / 800</span><span>Page title, hero title · <code>.st-h1</code></span></div>
-                            <div class="sg-type"><span class="st-h2">Section</span><span>24 / 700</span><span>Section heading, group title · <code>.st-h2</code></span></div>
-                            <div class="sg-type"><span class="st-h3">Card</span><span>20 / 700</span><span>Card title, key item title · <code>.st-h3</code></span></div>
-                            <div class="sg-type"><span class="st-text">Body</span><span>16 / 400</span><span>Body text, description, content · <code>.st-text</code></span></div>
-                            <div class="sg-type"><span class="st-label">Label</span><span>14 / 700</span><span>UI label, button text, badge · <code>.st-label</code></span></div>
-                            <div class="sg-type"><span class="st-meta">Meta</span><span>12 / 400</span><span>Meta info, timestamps, counts · <code>.st-meta</code></span></div>
+                            <div class="sg-type"><span class="st-h1">Heading</span><span>32 / 800</span><span>Page title, hero title Â· <code>.st-h1</code></span></div>
+                            <div class="sg-type"><span class="st-h2">Section</span><span>24 / 700</span><span>Section heading, group title Â· <code>.st-h2</code></span></div>
+                            <div class="sg-type"><span class="st-h3">Card</span><span>20 / 700</span><span>Card title, key item title Â· <code>.st-h3</code></span></div>
+                            <div class="sg-type"><span class="st-text">Body</span><span>16 / 400</span><span>Body text, description, content Â· <code>.st-text</code></span></div>
+                            <div class="sg-type"><span class="st-label">Label</span><span>14 / 700</span><span>UI label, button text, badge Â· <code>.st-label</code></span></div>
+                            <div class="sg-type"><span class="st-meta">Meta</span><span>12 / 400</span><span>Meta info, timestamps, counts Â· <code>.st-meta</code></span></div>
                         </div>
                     </div>
                 </section>
@@ -633,7 +633,7 @@
                             <div class="sg-item"><button class="st-btn st-btn--primary sg-f-press"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Pressed</b>: down-right, shadow 1px</p></div>
                             <div class="sg-item"><button class="st-btn st-btn--primary sg-f-focus"><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Focus</b>: keyboard ring</p></div>
                             <div class="sg-item"><button class="st-btn st-btn--primary" disabled><svg class="i"><use href="#i-plus" /></svg>Save</button><p class="sg-cap"><b>Disabled</b>: not interactive</p></div>
-                            <div class="sg-item"><button class="st-btn st-btn--primary" aria-busy="true">Saving…</button><p class="sg-cap"><b>Loading</b>: <code>aria-busy="true"</code></p></div>
+                            <div class="sg-item"><button class="st-btn st-btn--primary" aria-busy="true">Savingâ€¦</button><p class="sg-cap"><b>Loading</b>: <code>aria-busy="true"</code></p></div>
                         </div>
                         <hr class="sg-hr" />
                         <p class="sg-label">Other button types</p>
@@ -682,7 +682,7 @@
                         </div>
                         <div class="sg-row">
                             <div class="sg-item"><button class="st-tag st-tag--selected"><svg class="i" style="width: 14px; height: 14px"><use href="#i-check" /></svg><span>Design</span></button><p class="sg-cap"><b>Selected</b>: check</p></div>
-                            <div class="sg-item"><span class="st-tag st-tag--orange"><span>Inspiration</span><button class="st-tag__remove" aria-label="Remove Inspiration"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span><p class="sg-cap"><b>Removable</b>: close (×)</p></div>
+                            <div class="sg-item"><span class="st-tag st-tag--orange"><span>Inspiration</span><button class="st-tag__remove" aria-label="Remove Inspiration"><svg class="i" style="width: 14px; height: 14px"><use href="#i-x" /></svg></button></span><p class="sg-cap"><b>Removable</b>: close (Ã—)</p></div>
                             <div class="sg-item"><span class="st-tag st-tag--soft">Soft</span><p class="sg-cap"><b>Soft</b>: passive</p></div>
                         </div>
                         <hr class="sg-hr" />
@@ -715,11 +715,11 @@
                         <div class="st-field"><label class="st-field__label" for="i5">Textbox (disabled)</label><input id="i5" class="st-input" disabled placeholder="Title" /></div>
                         <div class="st-field">
                             <span class="st-field__label">Search input</span>
-                            <div class="st-search"><svg class="i st-search__icon"><use href="#i-search" /></svg><input class="st-input" type="search" placeholder="Search your stash…" aria-label="Search" /></div>
+                            <div class="st-search"><svg class="i st-search__icon"><use href="#i-search" /></svg><input class="st-input" type="search" placeholder="Search your stashâ€¦" aria-label="Search" /></div>
                         </div>
-                        <div class="st-field"><label class="st-field__label" for="i6">Multiline (note)</label><textarea id="i6" class="st-textarea" placeholder="A short note about this resource (optional)…"></textarea><p class="st-field__hint">Hint text sits under the control.</p></div>
+                        <div class="st-field"><label class="st-field__label" for="i6">Multiline (note)</label><textarea id="i6" class="st-textarea" placeholder="A short note about this resource (optional)â€¦"></textarea><p class="st-field__hint">Hint text sits under the control.</p></div>
                         <div class="st-field"><label class="st-field__label" for="i7">Select (dropdown)</label>
-                            <select id="i7" class="st-select"><option>Sort: Recent</option><option>Sort: Oldest</option><option>Sort: A → Z</option><option>Sort: Z → A</option></select>
+                            <select id="i7" class="st-select"><option>Sort: Recent</option><option>Sort: Oldest</option><option>Sort: A â†’ Z</option><option>Sort: Z â†’ A</option></select>
                         </div>
                     </div>
                 </section>
@@ -761,7 +761,7 @@
 
                 <!-- 02/03 NAV -->
                 <section class="st-panel sg-section sg-span-2" id="nav">
-                    <h2><span class="sg-n">08</span> Navigation<span class="sg-sub">Desktop sidebar (≥ lg), mobile top bar + floating bottom bar.</span></h2>
+                    <h2><span class="sg-n">08</span> Navigation<span class="sg-sub">Desktop sidebar (â‰¥ lg), mobile top bar + floating bottom bar.</span></h2>
                     <div class="sg-body">
                         <div class="sg-cols-2 sg-cols" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: start">
                             <div class="sg-item" style="display: grid; gap: 10px">
@@ -898,7 +898,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 44px"><input type="checkbox" class="st-checkbox" aria-label="Select all" /></th>
-                                        <th>Title</th><th>Type</th><th>Tags</th><th>Updated ↓</th><th><span class="st-sr-only">Actions</span></th>
+                                        <th>Title</th><th>Type</th><th>Tags</th><th>Updated â†“</th><th><span class="st-sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -926,14 +926,14 @@
                     <div class="sg-body">
                         <p class="sg-label">Alerts</p>
                         <div class="st-alert" role="status"><svg class="i st-alert__icon"><use href="#i-circle-check" /></svg><div class="st-alert__content"><p class="st-alert__title">Resource added</p><p class="st-alert__body">The resource was saved to your stash.</p></div><button class="st-icon-btn" style="width: 32px; height: 32px; margin: -6px -8px 0 0" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
-                        <div class="st-alert st-alert--info"><svg class="i st-alert__icon"><use href="#i-info" /></svg><div class="st-alert__content"><p class="st-alert__title">Metadata is loading</p><p class="st-alert__body">Fetching title, image, and description…</p></div></div>
+                        <div class="st-alert st-alert--info"><svg class="i st-alert__icon"><use href="#i-info" /></svg><div class="st-alert__content"><p class="st-alert__title">Metadata is loading</p><p class="st-alert__body">Fetching title, image, and descriptionâ€¦</p></div></div>
                         <div class="st-alert st-alert--warning"><svg class="i st-alert__icon"><use href="#i-alert" /></svg><div class="st-alert__content"><p class="st-alert__title">Preview unavailable</p><p class="st-alert__body">We couldn't load a preview for this resource.</p></div></div>
                         <div class="st-alert st-alert--error" role="alert"><svg class="i st-alert__icon"><use href="#i-circle-x" /></svg><div class="st-alert__content"><p class="st-alert__title">Upload failed</p><p class="st-alert__body">The file could not be uploaded. <button class="st-alert__action">Retry</button></p></div></div>
                         <hr class="sg-hr" />
                         <p class="sg-label">Toasts (transient)</p>
                         <div class="st-toast" role="status"><svg class="i st-toast__icon"><use href="#i-circle-check" /></svg><span class="st-toast__message">Resource saved</span><button class="st-toast__action">Undo</button><button class="st-toast__close" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
                         <div class="st-toast st-toast--error" role="alert"><svg class="i st-toast__icon"><use href="#i-circle-x" /></svg><span class="st-toast__message">Could not save</span><button class="st-toast__action">Retry</button><button class="st-toast__close" aria-label="Dismiss"><svg class="i"><use href="#i-x" /></svg></button></div>
-                        <div class="st-toast st-toast--info"><svg class="i st-toast__icon"><use href="#i-info" /></svg><span class="st-toast__message">Syncing…</span></div>
+                        <div class="st-toast st-toast--info"><svg class="i st-toast__icon"><use href="#i-info" /></svg><span class="st-toast__message">Syncingâ€¦</span></div>
                         <div class="st-toast st-toast--warning"><svg class="i st-toast__icon"><use href="#i-alert" /></svg><span class="st-toast__message">Offline</span></div>
                     </div>
                 </section>
@@ -1034,7 +1034,7 @@
                             <div class="st-empty"><svg class="i st-empty__icon"><use href="#i-layers" /></svg><h3 class="st-empty__title">Your stash starts here</h3><p class="st-empty__body">Save links, images, and articles to keep them in one place.</p><button class="st-btn st-btn--primary st-btn--sm">Save resource</button><p class="sg-cap">Empty library</p></div>
                             <div class="st-empty"><svg class="i st-empty__icon"><use href="#i-search" /></svg><h3 class="st-empty__title">No results</h3><p class="st-empty__body">No resources match your filters.</p><button class="st-btn st-btn--secondary st-btn--sm">Clear filters</button><p class="sg-cap">No results</p></div>
                             <div style="display: grid; gap: 10px; align-content: center">
-                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800"><svg class="i"><use href="#i-upload-cloud" /></svg><span style="flex: 1">Uploading image…</span><span class="st-meta">65%</span></div>
+                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800"><svg class="i"><use href="#i-upload-cloud" /></svg><span style="flex: 1">Uploading imageâ€¦</span><span class="st-meta">65%</span></div>
                                 <div class="st-progress" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading"><div class="st-progress__bar" style="width: 65%"></div></div>
                                 <p class="sg-cap">Upload progress (65%)</p>
                             </div>
@@ -1063,8 +1063,8 @@
                         <p class="sg-label">Breadcrumb</p>
                         <nav class="st-breadcrumb" aria-label="Breadcrumb"><svg class="i"><use href="#i-folder" /></svg><a class="st-link st-link--plain" href="#other" onclick="return false">Projects</a><span class="st-breadcrumb__sep">/</span><span>Website Redesign</span></nav>
                         <p class="sg-label">Misc</p>
-                        <div class="sg-row" style="align-items: center"><span class="st-spinner" role="status" aria-label="Loading"></span><span class="st-kbd">⌘ K</span><code class="st-code">st-btn</code></div>
-                        <p class="sg-cap"><b>Interactions:</b> hover lifts · press compresses · keyboard focus stays visible · static content stays flat.</p>
+                        <div class="sg-row" style="align-items: center"><span class="st-spinner" role="status" aria-label="Loading"></span><span class="st-kbd">âŒ˜ K</span><code class="st-code">st-btn</code></div>
+                        <p class="sg-cap"><b>Interactions:</b> hover lifts Â· press compresses Â· keyboard focus stays visible Â· static content stays flat.</p>
                     </div>
                 </section>
 
@@ -1073,20 +1073,20 @@
                     <h2><span class="sg-n">17</span> Visual legend &amp; tokens<span class="sg-sub">What to copy when you reuse this theme.</span></h2>
                     <div class="sg-body">
                         <div class="sg-legend">
-                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-demo-box" style="border-radius: 12px"></div><p class="sg-cap"><b>Border</b> 2px on all controls · <code>--st-border</code></p></div>
+                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-demo-box" style="border-radius: 12px"></div><p class="sg-cap"><b>Border</b> 2px on all controls Â· <code>--st-border</code></p></div>
                             <div class="sg-item" style="display: grid; gap: 8px">
                                 <div class="sg-row"><div class="sg-demo-box" style="border-radius: 12px"></div><div class="sg-demo-box" style="border-radius: 20px"></div></div>
-                                <p class="sg-cap"><b>Radius</b> 12px controls · 20px cards · <code>--st-radius</code> / <code>--st-radius-card</code></p>
+                                <p class="sg-cap"><b>Radius</b> 12px controls Â· 20px cards Â· <code>--st-radius</code> / <code>--st-radius-card</code></p>
                             </div>
                             <div class="sg-item" style="display: grid; gap: 8px">
                                 <div class="sg-row" style="gap: 20px"><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow-sm)"></div><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow)"></div><div class="sg-demo-box" style="border-radius: 12px; box-shadow: var(--st-shadow-hover)"></div></div>
-                                <p class="sg-cap"><b>Hard shadow</b> 2 · 4 · 6px offset, 0 blur, ink</p>
+                                <p class="sg-cap"><b>Hard shadow</b> 2 Â· 4 Â· 6px offset, 0 blur, ink</p>
                             </div>
                             <div class="sg-item" style="display: grid; gap: 8px">
                                 <div class="sg-space"><i style="width: 4px; height: 4px"></i><i style="width: 8px; height: 8px"></i><i style="width: 12px; height: 12px"></i><i style="width: 16px; height: 16px"></i><i style="width: 24px; height: 24px"></i><i style="width: 32px; height: 32px"></i><i style="width: 48px; height: 48px"></i></div>
-                                <p class="sg-cap"><b>Spacing</b> 4 · 8 · 12 · 16 · 24 · 32 · 48 · <code>--st-space-1…7</code></p>
+                                <p class="sg-cap"><b>Spacing</b> 4 Â· 8 Â· 12 Â· 16 Â· 24 Â· 32 Â· 48 Â· <code>--st-space-1â€¦7</code></p>
                             </div>
-                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-touch"></div><p class="sg-cap"><b>Touch target</b> 44 × 44px minimum · <code>--st-touch</code></p></div>
+                            <div class="sg-item" style="display: grid; gap: 8px"><div class="sg-touch"></div><p class="sg-cap"><b>Touch target</b> 44 Ã— 44px minimum Â· <code>--st-touch</code></p></div>
                         </div>
                         <hr class="sg-hr" />
                         <p class="sg-label">Reuse in another project</p>

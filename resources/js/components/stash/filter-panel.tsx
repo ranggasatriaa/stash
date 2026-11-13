@@ -1,4 +1,4 @@
-import * as Popover from '@radix-ui/react-popover';
+﻿import * as Popover from '@radix-ui/react-popover';
 import { SlidersHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -26,7 +26,7 @@ const TYPES: { key: ResourceType; label: string }[] = [
 ];
 
 /**
- * Custom filter panel (sheet 02 · 06): type, tags (Any/All), project incl.
+ * Custom filter panel (sheet 02 Â· 06): type, tags (Any/All), project incl.
  * Unassigned, reading status and created-date range. Popover on desktop,
  * bottom sheet on mobile.
  */
@@ -166,7 +166,7 @@ export function FilterPanel({
                     <input
                         type="search"
                         className="st-input st-input--sm"
-                        placeholder="Find a tag…"
+                        placeholder="Find a tagâ€¦"
                         aria-label="Find a tag"
                         value={tagQuery}
                         onChange={(e) => setTagQuery(e.target.value)}
@@ -312,7 +312,7 @@ export function FilterPanel({
             <span>Filters</span>
             {activeCount > 0 && (
                 <span
-                    className="grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1 text-[11px] text-white"
+                    className="grid h-5 min-w-5 place-items-center rounded-md bg-ink px-1 text-[11px] text-white"
                     aria-label={`${activeCount} active`}
                 >
                     {activeCount}

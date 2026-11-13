@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import { StashMark } from '@/components/stash/brand';
 import type { AuthLayoutProps } from '@/types';
 
@@ -6,6 +7,8 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: AuthLayoutProps) {
+    const { app_version: version } = usePage().props;
+
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-4 sm:p-10">
             <main className="w-full max-w-[420px]">
@@ -32,6 +35,11 @@ export default function AuthSimpleLayout({
                     </div>
                     {children}
                 </div>
+                {version && (
+                    <p className="st-meta mt-4 text-center" title="Version">
+                        {version}
+                    </p>
+                )}
             </main>
         </div>
     );
